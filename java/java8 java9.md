@@ -1,15 +1,3 @@
-title:  java8、java9
-date: 2018-05-01 15:03:12
-tags:
-    - java
-categories:
-    - java
-
----
->学校没有教过的东西
-<!-- more -->
-
-
 # java8
 
 ## 增强了基本包装类的功能

@@ -1,5 +1,4 @@
-# 复合数据类型
-## 数组
+# 数组
 ```
 
 	var a [3]int //[3]int 是一个数组类型，即使是同一type，但不同长度的数组，类型也不相同
@@ -43,16 +42,15 @@
 
 数组的定长类型和值传递，使得我们并不常用它，而是选择更好用的 slice
 
-## slice 切片
+# slice
 - 切片：相同类型元素的可变长度序列,[]T
-- slice的底层还是数组，它有三个属性
+- slice的底层还是数组，它的本质是一个数据结构，有三个属性
   - 指针：指向底层数组，多个切片可以指向同一个底层数组
   - 长度：切片的长度，len(slice)得到长度
   - 容量:从slice的起始位置，到最底层数组最后一个元素的长度，cap(slice)得到容量
-- 由上面的定义可以很明显的看出，slice 是引用类型
 - slice := s[i:j]，0 <= i <= j <= cap(s)， 省略 i 时，默认 i 为 0，省略 j 时，j 为 len(s)
 - j <= cap(s) 是个很有意思的限制，它使得 s 向后的长度永远能的指向最底层的数组，但是超过了 cap(s) 则会宕机（非把死机说的这么高雅，我查了半天才知道这个字读 dang） 
-- 因为 slice 是引用类型，所以不能用 == 比较两个 slice 是否有相同的元素，这也使得 slice 无法作为 map 的 key，可以使用 bytes.Equal()比较 []byte，其他的需要自己写函数了
+- 因为 slice 是引用数组，所以不能用 == 比较两个 slice 是否有相同的元素，这也使得 slice 无法作为 map 的 key，可以使用 bytes.Equal()比较 []byte，其他的需要自己写函数了
  
 ```
 	
@@ -96,7 +94,7 @@ golang 选择把类型的声明放在后面，这样就避免了前缀太多而�
 	arr := [...]int{1,2,3,4,5,6,7}
 	// reverse(arr) 错误，因为数组类型并不是slice类型
 	s := arr[:]
-	//或者直接可以写为 s := []int{1,2,3}
+	//或者直接可以写为 s := []int{1,2,3}，它的底层自动分配了数组，但我们不用关心
 	reverse(s)
 	fmt.Println(s)
 	
@@ -109,19 +107,18 @@ golang 选择把类型的声明放在后面，这样就避免了前缀太多而�
 	fmt.Println(reflect.TypeOf(strS[13])) //uint8
 
 ```
-
 ## slice 操作
 ### make
 ```
 
-	s := make([]int,5,10)
-	for i := range s{
+	s := make([]int,5,10) //或 make([]T,len,cap) cap可以省略，只写len
+	for i,v := range s{
 		print(i) //01234
 	}
 
 ```
 
-使用 make 创建 slice 的本质还是创建一个匿名数组，并返回一个指向该匿名数组的 slice
+使用 make 创建 slice 的本质还是创建一个指定长度的匿名数组，并返回一个指向该匿名数组的 slice
 
 ### append
 ```
@@ -153,7 +150,56 @@ golang 选择把类型的声明放在后面，这样就避免了前缀太多而�
 
 append([]Type, ...Type)
 
-## map[k]v
+向切片 append 时，当切片容量不够会从新分配底层数组使其增长，如果这样的次数太多势必会影响性能，所以我们在 make 切片时，尽量一步到位
+
+### copy
+copy(s1,s2) 将 s2 的内容复制到 s1 中
+```
+	s1 := []int{1,2,3,4,5}
+	s2 := []int{3,2,1}
+
+	copy(s1,s2)
+	fmt.Println(s1) //[3 2 1 4 5]
+
+	s3 := []int{1,2,3,4,5}
+	copy(s2,s3)
+	fmt.Println(s2)	//[1 2 3]
+
+```
+
+### 传递
+我们之前说过 slice 是引用类型，让我们在详细的去审视一下这个引用类型，它和我们在 java 中说的引用类型不太一样
+```
+	func changeLen(s []int) []int {
+		return s[:len(s)/2]
+	}
+
+	func main() {
+		s := make([]int,20)
+		fmt.Println(len(s)) //20
+		fmt.Println(s[0]) //0
+		s2 := changeLen(s)
+		fmt.Println(len(s)) //20
+		fmt.Println(s[0]) //666
+		fmt.Println(len(s2)) //10
+		fmt.Println(s2[0]) //666
+	}
+
+
+```
+如果安装 java 中引用类型的定义，s 的长度也会改变，实际上只改变了底层数组而长度没变。
+
+我们可以简单的将 slice 看作这样的结构体
+	
+	type slice struct{
+		arr *[len]type
+		len int
+		cap int
+	}
+
+它是这样的一个结构体，再赋值时依旧是复制传递，由于内部使用的是数组指针，所以多个 slice 共同操作一个数组，一旦一个 slice 改变底层数组值，其他的随之改变，这样就造成了 slice 是引用类型的假象，**slice 的本质还是复制传递**
+
+# map[k]v
 ```
 
 	//下面两种初始化方式相同
@@ -166,7 +212,7 @@ append([]Type, ...Type)
 		"index2":2,
 	}
 
-	delete(m2,"index1")
+	delete(m2,"index1") //删除 map 中的元素
 	fmt.Println(len(m2))  // 1
 	fmt.Printf("m2[index3]=%v\n",m2["index3"]) // 访问不存在的下标会得到默认值
 
@@ -202,11 +248,22 @@ append([]Type, ...Type)
 
 ```
 
-## 结构体
-- 结构体是由基本类型组成的聚集数据类型
-- 复制传递
-- 通过首字符是否大写控制是否导出
+就像分析 slice 的引用传递一样，看看 map 的引用传递。简单来说，可以视作如下结构体
+
+type map_key_val struct{
+	....
+}
+
+type map_impl struct{
+	impl *map_key_val
+}
+
+
+# struct
+- 结构体是由基本类型组成的聚集数据类型，它是值语义，同样以首字母是否大写控制是否可导出，其成员变量也是
 - 结构体指针也可以直接使用结构体成员，且结构体是复制传递，所以经常使用结构体的指针
+- 如果结构体的所有成员都可以比较，那么这个结构体就是可比较的，== 会按照顺序比较两个结构体变量的成员变量
+- struct 和 java 中的 class 地位相同，但是 struct 只有组合的特性，通过组合可以灵活的构建 oop 特性，亦可不使用 oop
 
 ```
 
@@ -236,7 +293,24 @@ append([]Type, ...Type)
 
 ```
 
-## JSON
+# 类型系统
+程序是用来处理数据的，所以数据类型是一门语言的基石，一门典型语言的类型系统应该包含以下部分
+
+- 基础类型，如 int，bool，float 等
+- 复合类型，如数组、结构体、指针等
+- 可以指向任意对象的类型（any 类型）
+- 值语义和引用语义
+- 具有面向对象的特征的类型
+- 接口
+
+go 中的类型大多都是值语义，以 interface{} 作为 any 类型，使用结构体的组装实现 oop
+
+## 值语义与引用语义
+slice、map、channel、interface，比较特殊，他们看起来像是引用类型，实际只是底层数据结构维护着指针，依旧是值语义
+
+
+
+# JSON
 ```
 	type Movie struct{
 		Title string
@@ -247,6 +321,8 @@ append([]Type, ...Type)
 
 	mv := Movie{Title:"success",Year:10}
 	mvJson,_ := json.MarshalIndent(mv,"","	")
+	//使用 json.Marshal() 将其转换为 json 字符串
+	//使用 json.Unmarshal() 将 json 转换为 go 类型，转换时会忽略 json 数据的大小写
 	fmt.Printf("%s",mvJson)
 	//{
 	//	"Title": "success",
@@ -263,3 +339,25 @@ append([]Type, ...Type)
 	// 字段在json里的键为"Field"（默认值），但如果字段为空值会跳过；注意前导的逗号
 	Field int `json:",omitempty"`
 ```
+
+# 文本和 html 模板
+补充一个知识点：
+
+很多类型都定义了自己的 String 方法，当使用 fmt 包中的方法输出时，就是调用该类型的 String 方法
+```
+	type T struct {
+		Name string
+	}
+
+	func (this T) String()  string{
+		return "do string"
+	}
+
+	func main() {
+		t := T{Name:"dyk"}
+		fmt.Println(t) // do string
+	}
+```
+text/template 和 html/template 中的方法类似，但是 html/template 会将一切传入变量的字符串中特殊字符进行同义转义，避免被视作 html/js 解析，这样可以减少很多安全问题，如果想要对传入字符串添加信任，可以声明为 template.HTML
+
+	template.Must(template.New("tem").Funcs(template.FuncMap{"func",func}).Parse(tem)).Execute(os.Stdin,params)

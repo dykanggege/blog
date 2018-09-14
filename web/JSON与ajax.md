@@ -1,15 +1,3 @@
-title:  JSON与ajax
-date: 2018-04-13 3:29:55
-tags:
-    - JSON
-    - ajax
-categories:
-    - 前端
-
----
->前端中最秀的技术之一！
-<!-- more -->
-
 # JSON
 ## JSON可存储值类型
 

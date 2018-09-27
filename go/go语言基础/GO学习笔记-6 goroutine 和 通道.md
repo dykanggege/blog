@@ -376,3 +376,85 @@ sync 实现的同步锁有两种类型：
 
 ```
 once.Do(fun) 只会被调用一次，当一个 goroutine 调用时，其他 goroutine 的调用会被阻塞，全局只有唯一成功调用
+
+# chan 的使用
+## goroutine 泄露
+```
+
+    func main()  {
+        mirroredQuery()
+        time.Sleep(time.Second*1)
+    }
+
+    func mirroredQuery() string {
+        //缓存是 3 的时候会输出全部值，无缓冲只输出一个
+        responses := make(chan string,3)
+        go func() {
+            responses<-"a1"
+            fmt.Println("a1")
+        }()
+        go func() {
+            responses<-"a2"
+            fmt.Println("a2")
+        }()
+        go func() {
+            responses<-"a"
+            fmt.Println("a3")
+        }()
+        return <- responses
+    }
+
+```
+假如我们需要请求一个数据，我们同时向三台服务器发送，并返回最先到达的数据，考虑一下为什么要用带三个缓存的通道，理论上来说不需要缓存通道，只用返回通道里最先到达的值即可，但是在通道被一个线程写入后就被返回并销毁了，剩下的两个 goroutine 会由于无法向通道写入值而一直阻塞，而无法被回收
+
+```
+    //火箭发射器
+    t := time.Tick(time.Second*1)
+	stop := make(chan struct{})
+	for i := 0; i < 10; i++ {
+		fmt.Println(10-i)
+		select {
+		case <-t:
+		case <-stop:
+			return
+		}
+	}
+	(func() {
+		fmt.Println("lanch")
+	})()
+
+```
+如果调用传入 stop 则会停止发射，但是 t 会继续尝试传入（它是一个单独的 goroutine），造成泄露，将代码修改如下
+
+```
+    t := time.NewTicker(1 * time.Second)
+	stop := make(chan struct{})
+	for i := 0; i < 10; i++ {
+		fmt.Println(10-i)
+		select {
+		case <-t.C:
+		case <-stop:
+			t.Stop()
+			return
+		}
+	}
+	(func() {
+		fmt.Println("lanch")
+	})()
+```
+
+## 缓存与无缓存
+make(chan int) 与 make(chan int,1) 是不同的，前者无缓存，后者有一个缓存，看例子
+```
+    c := make(chan int，1)
+	for i := 0; i < 10; i++ {
+		select {
+		case x:=<-c:
+			println(x)
+		case c<-i:
+		}
+	}
+
+```
+由于有一个缓存，所以就可以先放入一个值，不需要同时有接收方的存在，如果此处用 make(chan int) 就会陷入一直阻塞，因为无缓冲，所以必须同时有接收方的存在才能放入值（两者必须共存）
+

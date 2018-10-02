@@ -38,6 +38,31 @@ test 命令提供了自动化测试的功能
     }
 
 ```
+### 表测试法
+借助于结构体切片独特的结构，可以用多组数据的表结构测试法
+```
+    var tests = []struct {
+        a,b,c int
+    }{
+        {1,2,3},
+        {2,3,5},
+        {9,9,6},
+    }
+
+    func TestSum(t *testing.T)  {
+        for i,v := range tests{
+            if sum(v.a,v.b) != v.c{
+                t.Errorf("第 %d 组数据测试错误：%d + %d != %d",i,v.a,v.b,v.c)
+            }
+        }
+    }
+
+    === RUN   TestSum
+    --- FAIL: TestSum (0.00s)
+        man_test.go:18: 第 2 组数据测试错误：9 + 9 != 6
+    FAIL
+    coverage: 100.0% of statements
+```
 
 ## BenchmarkXXX 函数
 - Benchmark 函数用于做多次测试的平均性能，需要在调用时传入测试次数 go test -bench 100 如果次数为 . 则自动测试到稳定性能后停止
@@ -61,3 +86,4 @@ test 命令提供了自动化测试的功能
 
 
 ```
+

@@ -17,22 +17,29 @@ class person:
     def getTest(self):
         self.test = 1
         print(self.test)
+        
+    def other(self):
+		# 这里会报错，只有 init 中可以声明属性
+		self.oterVar = 'otherVar'
+	
+	def otherPrint(self):
+		print(self.otherVar)
 
-p = person('kanggege',21)
-print(p.getTest())
-
-class student(person):
-    def __init__(self,name,age,id):
-        super().__init__(name,age)
-        self.id = id
-
-    def eat(self,food):
-        print('i am a student, i am very hungry, i eat ',food)
-
-    def eat(self):
-        print('i baole')
-
-s = student('kangge',21,666)
-s.eat()
+	p = person('kanggege',21)
+	print(p.getTest())
+	
+	class student(person):
+	    def __init__(self,name,age,id):
+	        super().__init__(name,age)
+	        self.id = id
+	
+	    def eat(self,food):
+	        print('i am a student, i am very hungry, i eat ',food)
+	
+	    def eat(self):
+	        print('i baole')
+	
+	s = student('kangge',21,666)
+	s.eat()
 
 ```

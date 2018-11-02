@@ -156,3 +156,90 @@ key指定的函数将作用于list的每一个元素上，并根据key函数返�
 如上，两个函数等价
 
 ## 装饰器
+所有的函数都可以通过 fun.__name__ 得到定义时的函数名，即使被赋值给其他变量，也会得到原来的函数名
+```
+	def log(fun):
+		def warpper(*args,**kw): # 对原来的函数进行包装，类似于切面
+			print('like sprint aop')
+			fun(*args,**kw)
+		return warpper
+		
+	def p(*args,**kw):
+		for v in args:
+			print(v)
+	
+	f = log(p)
+	f(1,2,3)
+```
+
+我们首先创建了一个函数修饰器，它为函数的功能做了扩充，然后传入要被装饰的函数，并得到一个被装饰后的函数并调用它
+
+使用 python 的语法糖可以简化这一过程
+
+```
+	def log(fun):
+		def warpper(*args,**kw):
+			print('like sprint aop')
+			fun(*args,**kw)
+		return warpper
+		
+	@log # 相当于 p = log(p)
+	def p(*args,**kw):
+		for v in args:
+			print(v)
+	
+	p(1,2,3)
+```
+
+在做包装时传入参数
+
+```
+
+	import functools
+	
+	def log(b,l):
+		def decorator(func):
+			def warpper(*args,**kw):
+				print(b,' middle ',l)
+				func(*args,**kw)
+			return warpper
+		return decorator
+	
+	@log('begin','last') # 等同于 p = log('begin','last')(p)，两层修饰
+	def p(*args,**kw):
+		for v in args:
+			print(v)
+		
+	print(p.__name__) # warpper 其实现在的 p 是指向 warpper 函数的，我们要修改回来，避免出问题
+	p.__name__ = p
+	p(1,2,3,a='a')
+	
+	# 修改后的函数如下
+	def log(b,l):
+		def decorator(func):
+			@functools.wraps(func)
+			def warpper(*args,**kw):
+				print(b,' middle ',l)
+				func(*args,**kw)
+			return warpper
+		return decorator
+
+```
+
+## 偏函数
+py 提供的内置函数大多都可以传入其他参数以满足需求，如果每次调用都需要传入一个额外参数，我们可以把这参数固定下来
+
+```
+	import functools
+	
+	print(int('12345'))
+	print(int('01011',base=2))
+	
+	def int2(x):
+		return int(x,base=2)
+	
+	print(int2('001010'))
+	
+	int2 = functools.partial(int,base=2) # 和上面 int2 的效果相同
+```
+

@@ -10,7 +10,3 @@ bytes 为 []byte 类型提供了常用的操作，其主要操作还是针对字
 两个包中都有 Reader 结构体和 NewReader 方法，他实现了io.Reader、io.Seeker、io.ReaderAt、io.WriterTo、io.ByteScanner、io.RuneScanner接口，作为一个包装结构体，为这两种类型实现了这些接口的方法 
 
 在 bytes 包下还有一个 Buffer 类型，它实现了字节缓冲，其本质和切片区别不大，而是将对切片的常用操作封装在结构体的函数中，更符合面向对象思想，并且实现了读写接口，便于其他流式操作
-
-# io
-io 包中主要定义了一系列 I/O 操作的接口和几个简单的读写操作，io/util 对 io 做了增强，提供了更多的读写操作，而 bufio 则是缓冲读写，比其他的读写更高效，也提供了更多的操作，一般我们使用 bytes 或 strings 只能基于字符串本身做操作，而做读写操作还是要先包装上 io 接口，使用 io 包下的方法去读写
-

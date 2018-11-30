@@ -1,7 +1,7 @@
 ｇｏ中的ＩＯ操作主要由ｉｏ、ｉｏ/ｉｏｕｔｉｌ、ｆｍｔ、ｂｕｆｉｏ实现，他们各有自己的特点
 - io 为 ＩＯ原语提供基本的接口，他的方法都是异步ｉｏ，并不保证所有的方法都是并发安全的
-- io/ioutil　主要提供了对文件操作的辅助ｉｏ
-- bufio 基本的ｉｏ原语函数调用都需要传入一个缓冲字节，bufio　提供了一个默认的缓冲字节长度，并实现了 io 中常用的接口，并提供了一些可以看做是 io 包的实现
+- io/ioutil　主要提供了对文件操作的辅助ｉｏ和一些常用、方便的IO操作函数
+- bufio 基本的ｉｏ原语函数调用都需要传入一个缓冲字节，bufio　提供了一个默认的缓冲字节长度，并实现了 io 中常用的接口，可以看做是对原语ｉｏ操作包装，实现　io 包的接口
 - fmt　提供了格式化的ｉｏ
 
 **并不列举所有的ＡＰＩ，只对我频繁用到的做介绍**
@@ -95,126 +95,62 @@ func println(d ...interface{}) (int,error) {
 	fmt.Println(buf.String())
 ```
 
-# ioutil
-ioutil 提供了封装过的对文件和目录的简单 io 操作
+## MultiReader 和 MultiWriter 函数
 
-# bufio
-## func NewReader(rd io.Reader) *Reader
-从一个普通的 reader 变成一个具有缓冲的 reader，默认的缓冲大小是 4096，如果打开文件，或者读取太长的字节流，可以让他变成一个 buff.Reader，否则，像读取几个字符这样的操作，就别再为它分配 4kb 的空间了
+>func MultiReader(readers ...Reader) Reader
+>func MultiWriter(writers ...Writer) Writer
 
-如果要读取的太大，而且我们能预先估测到大概大小，最好使用 func NewReaderSize(rd io.Reader, size int) *Reader
+它们接收多个 Reader 或 Writer，返回一个 Reader 或 Writer。我们可以猜想到这两个函数就是操作多个 Reader 或 Writer 就像操作一个
 
-bufio 的缓冲大小是很重要的，Discard、Peek 方法都是以缓冲区作为基准，如果跳过或预读的字节大小是超过缓冲区大小的，就会失败，所以在处理时要注意预估大文本的缓冲，避免失败
-
-bufio 里的 reader 适合大文本大数据的具有缓冲的读取（缓冲的分配也很有意思），它原有的方法都比较底层，包装为 Scanner 后可以对大文本进行自定义的切割扫描
-
-## func NewWriter(w io.Writer) *Writer
-writer 和 reader 的方法都比较类似，简直是一对好基友
-
-# fmt
-fmt 提供了更接近控制台的输入输出，非常类似于 c 的 print 和 scan，但是封装的更巧妙
-
-
-
-# demo
 ```
-func readerMenu() {
-	fmt.Println("请选择不同的输入源：")
-	fmt.Println("1 控制台输入")
-	fmt.Println("2 文件输入")
-	fmt.Println("3 网络输入")
-	fmt.Println("4 字符串输入")
-	fmt.Println("b 返回上一菜单")
-	fmt.Println("q 退出程序")
+readers := []io.Reader{
+	strings.NewReader("string reader"),
+	bytes.NewBufferString("[]bytes reader"),
 }
 
-func readFromAny()  {
-	for {
-		readerMenu()
+multireader := io.MultiReader(readers...)
 
-		var opt rune
-		fmt.Scanf("%c\n", &opt)
+r := bufio.NewReader(multireader)
 
-		data := make([]byte,0)
-		var err error
+buf := new(bytes.Buffer)
 
-		switch opt {
-		case '1':
-			_, err = fmt.Scanln(&data)
+buf.ReadFrom(r)
+fmt.Println(buf.String())
+```
 
-		case '2':
-			WRITEFILENAME:
-			fmt.Println("请输入文件名\n")
-
-			fname := ""
-			_, e := fmt.Scanln(&fname)
-			if e != nil{
-				fmt.Println("文件名输入错误！\n")
-				goto WRITEFILENAME
-			}
-
-			data, err = ioutil.ReadFile(fname)
-
-		case '3':
-			WRITEPORT:
-			fmt.Println("使用TCP连接，请输入监听端口号\n")
-
-			port := ""
-			_, e := fmt.Scanln(&port)
-			if e != nil{
-				fmt.Println("端口号输入错误\n")
-				break
-			}
-
-			listener, e := net.Listen("tcp", port)
-			if e != nil{
-				fmt.Println("端口号格式错误\n")
-				goto WRITEPORT
-			}
-
-			fmt.Println("等待连接\n")
-
-			conn, e := listener.Accept()
-			if e != nil{
-				fmt.Println(e,'\n')
-				break
-			}
-			_, err = conn.Read(data)
-
-		case '4':
-			fmt.Println("请输入要读取的字符串，回车键结束\n")
-
-			str := ""
-			fmt.Scanln(&str)
-
-			reader := strings.NewReader(str)
-			ch, _, e := reader.ReadRune()
-			data = []byte(strconv.QuoteRune(ch))
-			err = e
-
-		case 'b':
-			return
-
-		case 'q':
-			os.Exit(2)
-
-		default:
-			fmt.Println("输入一个字符！！！！\n")
-			break
-		}
-
-		if err != nil{
-			fmt.Println("数据读取失败")
-			fmt.Println(err)
-			fmt.Println()
-			continue
-		}else{
-			fmt.Println()
-			fmt.Println("读取到数据：",string(data))
-			fmt.Println()
-		}
+```
+func multiWriter()  {
+	file, err := os.Create("test.txt")
+	if err != nil{
+		panic(err)
 	}
-}
+	defer file.Close()
 
+	writers := []io.Writer{
+		file,
+		os.Stdout,
+	}
+
+	mulwri := io.MultiWriter(writers...)
+	writer := bufio.NewWriter(mulwri)
+	writer.WriteString("康搁搁")
+	writer.Flush()
+	
+}
+```
+
+## TeeReader
+
+>func TeeReader(r Reader, w Writer) Reader
+
+TeeReader 返回一个 Reader，它将从 r 中读到的数据写入 w 中。所有经由它处理的从 r 的读取都匹配于对应的对 w 的写入。它没有内部缓存，即写入必须在读取完成前完成。任何在写入时遇到的错误都将作为读取错误返回
+
+它不同于 io.copy 的地方是，TeeReader 是流式的数据传输，无缓存
 
 ```
+reader := io.TeeReader(os.Stdin, os.Stdout)
+reader.Read(make([]byte,200))
+```
+
+
+

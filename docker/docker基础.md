@@ -51,3 +51,16 @@ docker run -it --name k2 --volumes-from k1 kanggege/centos
 
 
 # dockerfile
+## 指令字
+- FROM 基础镜像，类似与父类
+- MAINTAINER 作者和作者的邮箱
+- RUN 容器构建时需要执行的指令
+- EXPOSE 当前容器对外暴露的端口
+- WORKDIR 创建容器后，终端默认登录进来工作目录，落脚点
+- ENV 在构建环境中设置的环境变量
+- ADD 将宿主机目录下的文件拷贝进镜像且ＡＤＤ命令会自动处理ＵＲＬ和解压ｔａｒ压缩包
+- COPY 类似于ADD，拷贝文件和目录到镜像中，只复制，不做特殊处理
+- VOLUME　容器数据卷，持久化容器运行数据
+- CMD 制定容器启动时要运行的命令，只有最后一条指令生效
+- ENTRYPOINT 所有添加的指令都会生效
+- ONBULID　当构建一个被继承的 dockerfile 时运行的命令，父镜像在被子镜像继承后父镜像的build 被触发

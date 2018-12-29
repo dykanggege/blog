@@ -100,6 +100,10 @@ int xbyte(packed_t word,int bytenum)
 }
 
 
+// 2.75
+// A E 2  M 1.11 f 0.11
+
+
 int main(int argc, char const *argv[]){
     int i = int_size_is_32();
     printf("%d",i);

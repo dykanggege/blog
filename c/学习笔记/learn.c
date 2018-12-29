@@ -24,19 +24,25 @@ void t_malloc()
 
     if(ptd == NULL)
     {
-        
+        ptd = (double *)raw;
+        pti = (int *)raw;
     }
     
+    
+
 }
 
 
+struct person{
+    char name[10];
+    int age;
+};
+
 int main(int argc, char const *argv[])
 {
-    simple_var();
-    static_var();
-
-    simple_var();
-    static_var();
+    struct person p;
+    p.age = 10;
+    printf("%d",p.age);
 
     getchar();
     return 0;

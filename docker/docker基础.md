@@ -8,7 +8,9 @@
 - search golang: 从dockerHub查找镜像
 - rmi：删除镜像
     - -f 强制删除（即使正在运行）
-- run hello-world：启动容器
+- rm：删除容器
+    - docker rm `docker ps -a -q`
+- run hello-world：根据镜像启动容器，注意容器是和镜像不一样的概念，如果run实质是create container 并 start container，如果 run 后没有删除容器（ｒｍ），容器会一直存在，ps -a 可以查看所有的容器
     - -t 为容器重新分配一个伪终端，通常与　-i 一起使用
     - -i 以交互模式运行容器，通常和 -t 一起使用
     - -p 端口映射　docker run -it -p 8888:8080 tomcat 将　tomcat 的对外公开端口设置为 8888
@@ -17,12 +19,12 @@
 - ps：列出所有正在运行的容器
     - -a 列出当前正在运行的和历史上运行过的
     - -l 显示最近创建的容器
+- kill id：杀死容器
 - logs：日志
 - attach centos：进入容器，使用 exit 会退出并杀死容器，ctrl+p+q 只是退出容器，这时候就可以用 docker attach centosID 重新进入容器
-- exec：不进入容器直接执行命令（正在运行的容器），得到命令结果
+- exec：不进入容器直接执行命令（正在运行的容器），得到命令结想｀果
     - -t 分配一个伪终端，针对于长久运行的(centos)，如果只是一次运行(gcc)，则不需要该参数
 - cp：拷贝容器内的数据到宿主机
-- kill id：杀死容器
 - commit：提交新的容器镜像
 - inspect imageID 查看运行容器的配置
 
@@ -51,6 +53,7 @@ docker run -it --name k2 --volumes-from k1 kanggege/centos
 
 
 # dockerfile
+
 ## 指令字
 - FROM 基础镜像，类似与父类
 - MAINTAINER 作者和作者的邮箱
@@ -64,3 +67,5 @@ docker run -it --name k2 --volumes-from k1 kanggege/centos
 - CMD 制定容器启动时要运行的命令，只有最后一条指令生效
 - ENTRYPOINT 所有添加的指令都会生效
 - ONBULID　当构建一个被继承的 dockerfile 时运行的命令，父镜像在被子镜像继承后父镜像的build 被触发
+
+dockerfile 中每个指令都是一层，最好不要用太多指令（好像不能超过127层）

@@ -1,47 +1,3 @@
-http包下主要有两大类，一个是作为客户端发起请求，一个是作为服务器处理请求，他们的核心点和交叉点都是Request和Reponse
-
-先从 http.Get() 开始看
-
-```
-//调用包中默认的Client的Get方法
-func Get(url string) (resp *Response, err error) {
-	return DefaultClient.Get(url)
-}
-
-//空的对象
-var DefaultClient = &Client{}
-
-//再看http.Post、http.Head 都是调用DefaultClient，再往下看 http.Client
-
-//字段很简单，看它具有的方法
-type Client struct {
-	Transport RoundTripper
-	CheckRedirect func(req *Request, via []*Request) error
-	Jar CookieJar
-	Timeout time.Duration
-}
-
-//向外暴露的还是Get、Post、PostForm、Head、Do这几个方法，我们从Get开始一个个看
-
-//它使用了 Request 结构体，我们看Request
-func (c *Client) Get(url string) (resp *Response, err error) {
-	req, err := NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	return c.Do(req)
-}
-```
-
-无论是get/post等，都是要先NewRequest，然后调用do方法，看request结构体
-
-我们看do方法
-
-```
-
-```
-
-
 # http.Request
 ```
 //http包中有两大作用，作为客户端发起请求，作为服务端处理请求
@@ -160,4 +116,3 @@ func NewRequest(method, urlstr string, body io.Reader) (*Request,error) {
 	return req,nil
 }
 ```
-

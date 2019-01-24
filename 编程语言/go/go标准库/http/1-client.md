@@ -2,6 +2,7 @@ http库主要实现两大功能，作为客户端发送http请求，作为服务
 
 # 客户端
 http提供了默认的直接请求方法
+
 ```
     func Get(url string) (resp *Response, err error)
     func Head(url string) (resp *Response, err error)
@@ -9,6 +10,7 @@ http提供了默认的直接请求方法
     func PostForm(url string, data url.Values) (resp *Response, err error)
     func ReadResponse(r *bufio.Reader, req *Request) (*Response, error)
 ```
+
 他们底层公用一个var DefaultClient = &Client{}，并对应调用DefaultClient.Get(u)，它们都会先NewRequest，所以对于Request是并发安全的，而Client中的数据并不是安全的
 
 标准库默认提供的是一个空的Client，我们可以创建自己的Client作为发送请求的代理
@@ -39,7 +41,7 @@ type Client struct {
 ```
 //每个请求都会携带jar中查询到的cookie(根据req.URL查询，注意每个URL是不同的)
 if client.Jar != nil {
-    //req.URL是我们发出请求时填写的url，被parse得到的
+    //req.URL是我们发出请求时填写的url，被parse得到的，用的指针，所以每个请求必然是不同的
     for _, cookie := range client.Jar.Cookies(req.URL) {
         req.AddCookie(cookie)
     }
@@ -51,4 +53,66 @@ if c.Jar != nil {
         c.Jar.SetCookies(req.URL, rc)
     }
 }
+```
+
+我们通过实现http.CookieJar接口管理cookie，client作为客户端发送者，每个请求都是NewRequest，但他们会并发使用client内数据
+
+```
+type myCookieJar struct {
+    //直接继承并发安全的map
+	sync.Map
+	addCookies []*http.Cookie
+}
+
+func NewMyCookieJar(addCookies []*http.Cookie) *myCookieJar {
+	return &myCookieJar{addCookies: addCookies}
+}
+
+
+func (m *myCookieJar) SetCookies(u *url.URL, cookies []*http.Cookie) {
+	//是向原有的cookie添加，还是set，根据情况选择
+	m.Store(u,cookies)
+}
+
+func (m *myCookieJar) Cookies(u *url.URL) []*http.Cookie {
+	val, ok := m.Load(u)
+	if ok {
+		return val.([]*http.Cookie)
+	}
+	return m.addCookies
+}
+
+```
+
+使用
+
+```
+func main() {
+	cookies := make([]*http.Cookie,0)
+	cookies = append(cookies,&http.Cookie{
+		Name:"demo",
+		Value:"demo-value",
+	})
+	myClient := &http.Client{
+		Jar: NewMyCookieJar(cookies),
+	}
+	for i := 0; i < 100; i++ {
+		_,err := myClient.Get("http://127.0.0.1:6666")
+		if err != nil{
+			fmt.Println(err)
+		}
+	}
+}
+```
+
+### client.Do
+通过实现jar略微复杂，对于简单的需求可以简单实现
+
+```
+req, _ := http.NewRequest("get", "http://127.0.0.1:6666", nil)
+req.AddCookie(&http.Cookie{
+    Name:"demo",
+    Value:"demo-value",
+})
+resp, _ := http.Client{}.Do(req)
 ```

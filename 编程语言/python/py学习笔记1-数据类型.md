@@ -48,8 +48,8 @@
     - 如果数组长度不为 0 ，都可以通过 arr[-1] 访问最后一个元素，类似 arr[-2] 访问倒数第二个元素
 - 遍历
     - for v in arr:
-    - range()函数，可以生成一个整数序列，再通过list()函数可以转换为list，for v in list(range())
-    - 列表解析 arr = [value**2 for value in range(1,11)]、**2 是求平方
+    - range()函数，可以生成一个整数序列(一般只用于迭代，for _ in range(10)，迭代10次)，再通过list()函数可以转换为list，for v in list(range())
+    - 列表解析 arr = [value\*\*2 for value in range(1,11)]、**2 是求平方
     - from collections import Iterable，通过 isinstance(arr, Iterable) 可以判断是否是可迭代的对象
 
 ```
@@ -69,6 +69,7 @@
     - arr[:] py的切片不是引用类型的，而是进行了复制
 - 元组
     - ct = (1,2) 常量数组，虽然不能修改其中的元素，但是可以重新给元祖赋值，真扯淡
+    - zip(iterabl) 将一个可迭代的对象变为元组
 
 
 ## dict
@@ -100,7 +101,7 @@
 ```
 
     arr1 = (x*x for x in range(1,11))
-    n = 10
+    n = 10  ··········  去111111111111
     while n:
         # 每调用一次 next() 就生成一次
         print(next(arr1))
@@ -178,5 +179,5 @@
     while con:
         可以用 break,continue
 
-## for
+## for in
 for 主要用户迭代

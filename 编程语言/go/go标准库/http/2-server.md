@@ -31,6 +31,8 @@ func ListenAndServe(addr string, handler Handler) error {
 
 再看看Server
 
+# Server
+
 ```
 type Server struct {
 	Addr    string  // TCP address to listen on, ":http" if empty
@@ -55,23 +57,15 @@ type Server struct {
 	//错误日志处理，If nil, logging is done via the log package's standard logger.
 	ErrorLog *log.Logger
 
-    //不允许访问的字段，运行时填充
-	disableKeepAlives int32     // accessed atomically.
-	inShutdown        int32     // accessed atomically (non-zero means we're in Shutdown)
-	nextProtoOnce     sync.Once // guards setupHTTP2_* init
-	nextProtoErr      error     // result of http2.ConfigureServer if used
-
-	mu         sync.Mutex
-	listeners  map[*net.Listener]struct{}
-	activeConn map[*conn]struct{}
-	doneChan   chan struct{}
-	onShutdown []func()
+	//隐藏字段
 }
 ```
 
-从字段可以看出，server中主要是各种配置相关，真正的处理放在路由器handle中
+从字段可以看出，server中主要是各种配置相关，做一些超时限制之类的，真正的处理放在路由器handle中
 
 我们在使用 http.ListenAndServe(":8080", nil) 传入nil，代表使用默认的路由器DefaultServeMux
+
+# ServeMux
 
 ```
 var DefaultServeMux = &defaultServeMux

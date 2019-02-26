@@ -100,4 +100,17 @@ func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 ```
 
-从主处理逻辑可以看出，整体实现的功能很简单，但是扩展性很好，很灵活小巧
+整个Run的处理逻辑:
+
+1. 取出Context复用，Context整合了原生Request和Response信息，提供简单的API
+2. handleHTTPRequest
+	1. 检测配置，根据engine的配置和url找到匹配的处理函数
+		1. 找不到处理函数，调动错误处理函数
+	2. 调用Context中注册的中间件
+	3. 调用处理函数
+
+我们最常用的是Context的处理函数
+
+# Context
+Context用于处理请求函数，返回响应值，中间件之间参数传递
+

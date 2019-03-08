@@ -263,6 +263,13 @@ copy(s1,s2) 将 s2 的内容复制到 s1 中
 	v,ok := m1["99999"]
 	//如果存在，则 ok 是 true，否则 ok 是 false，v 是其类型的零值
 
+	type s struct{
+		res string
+	}
+	m := map[string]s
+	v,ok := m["exit"]
+	//打印v得到{nil}，即一个空的 s
+	
 ```
 
 就像分析 slice 的引用传递一样，看看 map 的引用传递。简单来说，可以视作如下结构体

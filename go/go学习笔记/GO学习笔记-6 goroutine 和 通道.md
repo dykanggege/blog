@@ -3,9 +3,16 @@
 其他语言在并发中大多使用的线程，go 中使用协程,采用 m:n 方式调用，多个协程下对应一个线程调度
 
 ## goroutine 与线程
+### 栈
+-os 中创建一个线程就会为其分配栈大小，通常是2M（linux可以通过 ulimit -s 查看，jvm openjdk线程默认可能是1M，可以设置改变），对于小的线程过于浪费，大的线程反而不够用。
 
-- os 中创建一个线程就会为其分配栈大小（linux可以通过 ulimit -s 查看，jvm线程默认可能是1M，可以设置改变），对于小的线程过于浪费，大的线程反而不够用，而每一个 goroutine 初始栈大小通常为 2k，而后可以增大或缩小，最大可到 1G 
-- os 线程由 os 内核来调度，每隔几毫秒，一个硬件时针中断发送到 cpu，cpu 使用调度器暂停当前正在运行的线程，把它的寄存器信息保存到内存，查看线程表并决定接下来运行哪个线程，并从内存中恢复他们的注册表信息，线程间的上下文切换其实挺慢的。go 运行时包含一个自己的调度器，且不是用硬件时钟来触发的，而是通过特定的 go 语言结构触发，由于不需要切换到内核语境，所以调用一个 goroutine 比调度一个 os 线程成本低很多
+每一个 goroutine 初始栈大小通常为 2k，也是用于放置正在执行或临时暂停的函数中的局部变量，而后可以增大或缩小，最大可到 1G 
+
+### 调度
+os 线程由 os 内核来调度，每隔几毫秒，一个硬件时针中断发送到 cpu，cpu 调用一个叫调度器的内核函数，调度器暂停当前正在运行的线程，把它的寄存器信息保存到内存，查看线程表并决定接下来运行哪个线程，并从内存中恢复他们的注册表信息。每次线程切换需要陷入os内核态，且控制权限从一个线程交给另一个线程需要一个完整的上下文切换：保存一个线程的数据到内存，再从内存中取出另一个线程，再更新调度器的数据结构。整个过程是比较慢的。
+
+go 运行时包含一个自己的调度器，且不是用硬件时钟来触发的，而是通过特定的 go 语言结构触发，一旦一个goroutine陷入阻塞，go运行时调度器就会把他切走，由于底层都是用一个os线程实现的，所以goroutine的切换不需要陷入内核，调用一个 goroutine 比调度一个 os 线程成本低很多
+
 - 当一个程序启动时，只有一个 goroutine 调用 main 函数，它称为 主goroutine
 - 使用 go 创建新的 goroutine
 - 当 main 函数执行完成后，会暴力终结所有的 goroutine，然后程序退出
@@ -112,6 +119,9 @@ go 的 runtime 会使用调度器分配 goroutine 给不同的逻辑处理器，
     })()
 
 ```
+
+## GOMAXPROCS
+GO调度器使用GOMAXPROCS来决定底层使用多少个os线程来执行go代码，他就是m:n中的n。默认值是机器上CPU核心的数量。正在被通讯信道阻塞或休眠的goroutine不占用线程。阻塞在I/O和其他系统调度中或调用非go语言写的函数的goroutine需要一个独立的os线程，这个线程不计算在GOMAXPROCS中。
 
 # 并发资源竞争
 传统语言通过共享内存来实现线程通讯，并用锁来保证资源的安全，go 中也有类似的库
@@ -246,6 +256,7 @@ go 的 runtime 会使用调度器分配 goroutine 给不同的逻辑处理器，
         //}
 
         //当通道被关闭后自动停止迭代
+        //很重要的特性，要合理应用
         for val := range c{
             fmt.Println(val)
         }
@@ -262,7 +273,33 @@ go 的 runtime 会使用调度器分配 goroutine 给不同的逻辑处理器，
         wg.Wait()
     }
 
+    //一个通道被关闭后，取出操作就不会再被阻塞
+    ch := make(chan string)
+	close(ch)
+	<- ch
+	fmt.Println(1111)
+    //没问题，可以取出
 ``` 
+
+//一个通道被关闭后，取出操作将不会再被阻塞，取出类型的零值
+```
+ch := make(chan int)
+i := <- ch
+fmt.Println(i)
+//程序阻塞
+
+ch := make(chan int)
+close(ch)
+i := <- ch
+fmt.Println(i)  //打印 0 
+
+//但是不能再放入
+ch := make(chan int)
+close(ch)
+i := <- ch
+ch <- 2 //在这里被阻塞
+fmt.Println(i)
+```
 
 ## select
 select 类似于 switch，我们使用 select 来监控 io，一旦一个条件发生 io，就会调用 case 事件，注意 case 条件必须是 io 操作
@@ -292,20 +329,28 @@ select 类似于 switch，我们使用 select 来监控 io，一旦一个条件�
 ```
 
     c := make(chan int,1)
-    timeout := make(chan bool,1)
-
-    go func() {
-        time.Sleep(time.Second*5)
-        timeout <- true
-    }()
 
     select {
     case <- c:
         fmt.Println("预想之内的接收到消息")
-    case <-timeout:
+
+    case <-time.After(3*time.Second):
         fmt.Println("超时处理")
     }
 
+```
+
+要注意的是close情况下的select
+```
+//一般我们都会这样用select
+for{
+    select{
+    case i := <-ch:
+        ...
+    }
+}
+
+如果 close(ch)，则ch还能被取出，所以for永远停不下来，循环输出
 ```
 
 ## 缓存信道
@@ -383,7 +428,7 @@ sync 实现的同步锁有两种类型：
 ```
 once.Do(fun) 只会被调用一次，当一个 goroutine 调用时，其他 goroutine 的调用会被阻塞，全局只有唯一成功调用
 
-# chan 的使用
+# channel 的使用
 ## goroutine 泄露
 ```
 

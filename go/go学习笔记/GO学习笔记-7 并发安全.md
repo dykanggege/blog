@@ -4,6 +4,9 @@
 
 对变量的安全操作，要么限制变量的使用在一个goroutine内（多个goroutine通过一个chan去修改这个变量，这就是go所说的通过通讯共享内存），要么就应该加锁
 
+# 静态检测
+在并发情况下，管理资源的抢占和死锁总是很费脑力，在运行或编译时加上 --race 如 go run --race main.go 能在一定程度上帮助我们做并发的分析
+
 # 以通信共享内存
 看下面的例子
 
@@ -163,7 +166,7 @@ GetBalance，为什么一个读取操作需要加锁？这需要了解 cpu 的�
 
 现代计算机一般都有多个处理器，每个处理器都有自己的寄存器，为了提高效率，对内存的写入都是缓存在寄存器中，只有必要的时候才会再次刷回内存，甚至刷回内存的顺序和程序执行的顺序并不相同，像通信通道或互斥原语都会让处理器把之前累计的写草走刷回内存并提交，在提交之前运行在其他处理器的 goroutine 并不可见，如果 GetBalance 没有加锁，他可能会插在 withDraw 中间执行，而 withDraw 可能还没有刷回内存
 
-但使用互斥锁可能会造成 GetBalance 调用次数太多而其他方法无法调用，着对于一个简单的读操作来说未免太过浪费了，可以使用 sync.RWMutex 读写锁。读锁相当于共享锁，多个读操作并不会相互影响，写锁则是排它锁，写时不能读或者写。读写锁的粒度更小，但是可能
+但使用互斥锁可能会造成 GetBalance 调用次数太多而其他方法无法调用，着对于一个简单的读操作来说未免太过浪费了，可以使用 sync.RWMutex 读写锁。读锁相当于共享锁，多个读操作并不会相互影响，写锁则是排它锁，写时不能读或者写。
 
 ```
     var murw sync.RWMutex
@@ -194,3 +197,116 @@ GetBalance，为什么一个读取操作需要加锁？这需要了解 cpu 的�
 对于这样一个并发程序，我们可能期望到多种结果，但是你可能没预料到这样两种结果 x:0 y:0 或 y:0 x:0，事实上在某些编译器和处理器上的确有这种结果，因为赋值和 print 函数对应不同变量，所以调换了他们的顺序，或者他们在两个处理器上执行，因为没有回刷内存而导致彼此不可见
 
 关于并发通信，有着各种各样的可能以及扯淡的结果，我们应该尽可能的将共享变量限制在一个顺序执行的 goroutine，避免这些难以预料的问题
+
+# 并发非阻塞缓存
+如果我们要设计一个如下的缓存操作
+```
+type memo struct {
+	f Func
+	cache map[string]result
+}
+
+type result struct {
+	res interface{}
+	err error
+}
+
+type Func func(string)(interface{},error)
+
+func parseUrl(url string) (interface{},error) {
+	resp, err := http.Get(url)
+	if err != nil{
+		return nil,err
+	}
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
+}
+
+func NewMemo(f Func) *memo {
+	return &memo{f:f,cache: make(map[string]result)}
+}
+
+func (m *memo)Get(url string) (interface{},error) {
+	res,ok := m.cache[url]
+	if !ok{
+		res.res,res.err = m.f(url)
+		m.cache[url] = res
+	}
+	return res.res,res.err
+}
+```
+
+这样会有一个很明显的问题，在并发情况下 m.cache 是不安全的，可能有多个url相同的都没查取到缓存然后去调用函数，这是大大的浪费，最简单的做法是为 m.cache加锁
+
+更新如下
+```
+type memo struct {
+	f Func
+	cache map[string]result
+	mu sync.Mutex
+}
+
+func (m *memo)Get(url string) (interface{},error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	res,ok := m.cache[url]
+	if !ok{
+		res.res,res.err = m.f(url)
+		m.cache[url] = res
+	}
+	return res.res,res.err
+}
+```
+如果这样做，m.cache将成为一个瓶颈，多个线程将不得不排队等待访问cache，产生了拥塞。如果一个线程访问不到缓存，则去请求，这个线程请求的时候，其他线程不得不等待，因为锁只有在请求完成之后才会打开，这个瓶颈有点堵，我们试试改造一下
+
+```
+func (m *memo)Get(url string) (interface{},error) {
+	m.mu.Lock()
+	res,ok := m.cache[url]
+	m.mu.Unlock()
+	if !ok{
+		m.mu.Lock()
+		res.res,res.err = m.f(url)
+		m.cache[url] = res
+		m.mu.Unlock()
+	}
+	return res.res,res.err
+}
+```
+
+这样做锁性能会略微的提升，但是带来了更大的问题，一个url可能会被请求多次，这反而又造成更大的性能损耗
+
+现在最大的问题是堵在 cache 的并发访问上，造成了阻塞，能否有办法在这里不阻塞，让每个线程访问cache之后再去解决查询不到缓存的问题，或者仅仅是加锁查询cache，如果查询不到则解锁并放在线程里处理
+
+```
+type entry struct{
+	ready chan struct{}
+	val result
+}
+
+type memo struct {
+	f Func
+	cache map[string]*entry
+	mu sync.Mutex
+}
+
+func (m *memo)Get(url string) (interface{},error) {
+	m.mu.Lock()
+	e := m.cache[url]
+	if e == nil{
+		e = &entry{ready:make(chan struct{})}
+		m.cache[url] = e
+		m.mu.Unlock()
+
+		e.val.res,e.val.err = m.f(url)
+		close(e.ready)
+	}else{
+		m.mu.Unlock()
+		<- e.ready
+	}
+	return e.val.res,e.val.err
+}
+```
+
+这样虽然也有锁，但是阻塞度变小了，一旦查询不到缓存，会放到线程中去解析并存入，这样就减轻了堵塞，锁查询的堵塞瓶颈不大了。
+

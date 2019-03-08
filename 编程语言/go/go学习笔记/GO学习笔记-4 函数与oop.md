@@ -42,6 +42,7 @@ go 在设计时，希望能尽可能的处理错误信息，或尽可能的给�
 - log.Fatal() //打印错误信息，默认带上服务器时间做前缀，可以自定义前缀
 - 很多错误常量有利于我们对错误的处理，比如 io.EOF 代表文件读取到尾部了，读取不到了
 
+
 ## 函数使用
 在 go 中，函数是一等公民，它也有类型，也可以作为变量赋值传递，特有的就是可以调用
 
@@ -97,12 +98,13 @@ go 在设计时，希望能尽可能的处理错误信息，或尽可能的给�
 ```
 
     func def() string{
-    defer fmt.Print("1")
-    defer fmt.Print("2")
-    defer fmt.Print("3")
-    return "ok"
-
-    def() //321
+        defer fmt.Print("1")
+        defer fmt.Print("2")
+        defer fmt.Print("3")
+        panic(4)
+        return "ok"
+    }
+    def() //4321
 }
 
 ```
@@ -113,16 +115,20 @@ go 在设计时，希望能尽可能的处理错误信息，或尽可能的给�
 与其他编程语言不同，这是 go 独有的特性，这使得我们可以把本需要放在最后的操作提前进行    
 
 ## panic 与 recover
+退出程序方式有多种，如os.Exit(1)，如果使用panic，则一定是要和defer结合这用，如果在defer中，我们想把宕机，或错误截取下来并恢复，就可以用 recover
 ```
+func main() {
+    defer func{
+        if err:=recover();err!=nil{
+            //检测错误，如果符合预期，就把他从错误中恢复出来
+        }
+    }()
 
-    defer func() {
-		fmt.Println(recover())
-	}()
-	panic(666) 
+    panic("我是个木得感情的错误")
+}
+
 
 ```
-panic 用于退出程序，并逐级向上逆向回调 defer 函数，recover 可以获取 panic 并停止退出操作
-
 
 # oop
 go 并不是直接支持 oop，而是提供了组装的方式，让我们自己选择合适的编程方式，go 也可以很好的实现 oop

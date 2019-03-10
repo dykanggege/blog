@@ -101,6 +101,29 @@ USER 指令和 WORKDIR 相似，都是改变环境状态并影响以后的层。
 
 当然，和 WORKDIR 一样，USER 只是帮助你切换到指定用户而已，这个用户必须是事先建立好的，否则无法切换。
 
+## HEALTHCHECK 健康检查
+在之前我们都是通过容器内主线程退出与否判断容器状态，如果容器内的核心功能已死，但主线程未推出，我们就无法检测到容器异常，且浪费了资源，所以提供了这种机制去检测功能健康与否
+
+    HEALTHCHECK [选项] CMD <命令>：设置检查容器健康状况的命令,
+    HEALTHCHECK NONE：如果基础镜像有健康检查指令，使用这行可以屏蔽掉其健康检查指令
+    选项：
+        --interval=<间隔>：两次健康检查的间隔，默认为 30 秒；
+        --timeout=<时长>：健康检查命令运行超时时间，如果超过这个时间，本次健康检查就被视为失败，默认 30 秒；
+        --retries=<次数>：当连续失败指定次数后，则将容器状态视为 unhealthy，默认 3 次。
+    命令的返回值决定了该次健康检查的成功与否：0：成功；1：失败；2：保留，不要使用这个值。
+
+当在一个镜像指定了 HEALTHCHECK 指令后，用其启动容器，初始状态会为 starting，在 HEALTHCHECK 指令检查成功后变为 healthy，如果连续一定次数失败，则会变为 unhealthy。
+
+为了帮助排障，健康检查命令的输出（包括 stdout 以及 stderr）都会被存储于健康状态里，可以用 docker inspect 来查看。
+
+## ONBUILD 为他人做嫁衣裳
+    
+    格式：ONBUILD <其它指令>。
+
+ONBUILD 是一个特殊的指令，它后面跟的是其它指令，比如 RUN, COPY 等，而这些指令，在当前镜像构建时并不会被执行。只有当以当前镜像为基础镜像，去构建下一级镜像的时候才会被执行。
+
+Dockerfile 中的其它指令都是为了定制当前镜像而准备的，唯有 ONBUILD 是为了帮助别人定制自己而准备的。
+
 ## 构建镜像
     docker build [选项] <上下文路径/URL/->
     -t 镜像名[：tag]
@@ -118,3 +141,19 @@ USER 指令和 WORKDIR 相似，都是改变环境状态并影响以后的层。
 
     docker build https://github.com/twang2218/gitlab-ce-zh.git#:11.1
 
+## 多层次构建
+如果想隐藏一些细节，可以分两次构建，第一次构建依赖及其配置，第二次用第一次构建的镜像作为基础镜像，用于生产
+
+但是构建两个Dockerfile太麻烦，甚至还要写一个sh脚本整合，现在docker支持在一个Dockerfile中做多次构建
+
+我们可以使用 as 来为某一阶段命名，例如
+
+    FROM golang:1.9-alpine as builder
+
+例如当我们只想构建 builder 阶段的镜像时，增加 --target=builder 参数即可
+
+    $ docker build --target builder -t username/imagename:tag .
+
+上面例子中我们使用 COPY --from=0 /go/src/github.com/go/helloworld/app . 从上一阶段的镜像中复制文件，我们也可以复制任意镜像中的文件。
+
+    COPY --from=nginx:latest /etc/nginx/nginx.conf /nginx.conf

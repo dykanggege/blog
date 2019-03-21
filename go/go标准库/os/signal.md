@@ -23,6 +23,7 @@ linux下有62种信号，1-31属于标准信号，34-64属于实时信号
 		if sig != nil{
 			//恢复系统默认的信号处理
 			signal.Stop(sigRecv)
+            close(sigRecv)
 		}
 	}
 ```

@@ -10,7 +10,6 @@ http提供了默认的直接请求方法
     func PostForm(url string, data url.Values) (resp *Response, err error)
     func ReadResponse(r *bufio.Reader, req *Request) (*Response, error)
 ```
-
 他们底层公用一个var DefaultClient = &Client{}，并对应调用DefaultClient.Get(u)，它们都会先NewRequest，所以对于Request是并发安全的，而Client中的数据并不是安全的
 
 标准库默认提供的是一个空的Client，我们可以创建自己的Client作为发送请求的代理

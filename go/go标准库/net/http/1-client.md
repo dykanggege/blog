@@ -119,7 +119,7 @@ resp, _ := http.Client{}.Do(req)
 ## Transport
 我们看看Client的主要调用链,Get -> Do -> do -> send -> Transport.RoundTrip
 
-前面都是铺垫与检测，最终实现请求发送的是Transport.RoundTrip，所以Transport主实现了对请求发送的处理，如果为nil，默认使用transport文件下的DefaultTransport，对于我们来说使用默认的就足够了
+前面都是铺垫与检测，最终实现请求发送的是Transport.RoundTrip，所以Transport主实现了对请求添加一些信息后在发送的处理，如果为nil，默认使用transport文件下的DefaultTransport，对于我们来说使用默认的就足够了
 
 ## CheckRedirect
 如果我们发出的请求返回一个重定向响应，默认会在重定向转发十次后停止，我们也可以实现这个函数，在重定向之前做一些处理

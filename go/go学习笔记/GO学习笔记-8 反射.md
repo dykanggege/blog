@@ -27,7 +27,9 @@
 # reflect.Type、reflect.Value
 reflect.Type 是一个包含了许多方法的接口，我们可以借助这些方法识别数据类型和透视布局
 
-他只有一个实现，就是类型描述符，通过 reflect.TypeOf(interface{}) 方法，我们知道，将具体数赋值给接口，会发生隐式类型转换，会生成一个具有动态类型和动态值的接口值，例如 把 3 赋值给 interface{} 得到动态类型 int，动态值 3 的接口值，调用 TypeOf 方法返回接口值对应的动态类型（具体类型）
+他只有一个实现，就是类型描述符，通过 reflect.TypeOf(interface{}) 方法，我们知道，将具体数赋值给接口，会发生隐式类型转换，会生成一个具有动态类型和动态值的接口值，例如 把 3 赋值给 interface{} 得到动态类型 int，动态值 3 的接口值，调用 TypeOf 方法返回接口值对应的动态类型（具体类型），而不是接口类型
+
+正因为interface具有这样的特性，我们才能使用类型断言和switch val.(type)
 
 reflect.Value 则是接口类型的动态值，使用 reflect.ValueOf(interface{}) 获取动态值，但 reflect.Value 也包含一个接口值
 

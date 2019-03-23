@@ -8,6 +8,7 @@ func main() {
 	http.HandleFunc("/func", func(rw http.ResponseWriter, r *http.Request) {
         /*do something*/
 	})
+	
     //传入nil，使用默认的路由器
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil{fmt.Println(err)}

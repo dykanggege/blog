@@ -29,7 +29,8 @@ type Request struct {
 
     Host string
 
-    //server：包含url和body参数
+    //server：包含url和body参数，body的优先级高于url
+    //调用ParseForm 或 ParseMultipartForm 才会被解析
     //client：无用
     Form url.Values
 
@@ -58,7 +59,7 @@ type Request struct {
 }
 ```
 
-# url
+# 请求路径
 request结构体中不仅有对整个url的解析信息：URL *url.URL，还有一个 RequestURI 这么多url都代表了啥？
 
 先看一个uri的定义
@@ -76,10 +77,20 @@ request结构体中不仅有对整个url的解析信息：URL *url.URL，还有�
 
 在服务端开发时，一般用r.URL.Path做路由匹配，很少用编码过的uri
 
-# params
+# 请求参数
 对于请求参数的解析，request也提供了多种方式
-- r.Form：可以查询url的query参数，和请求体中的param参数，返回的是解码过的值
-- r.PostForm：只查询请求体中的param参数，POST、PATCH、PUT这些方法才有请求体，返回过的是解码过的值
+- r.Form：可以查询url的query参数，和请求体中的param参数，返回的是解码过的值。默认是没有被解析的，只有调用r.ParseForm()或r.ParseMultipartForm()，才存在值
+- r.PostForm：只查询请求体中的param参数，POST、PATCH、PUT这些方法才有请求体，返回过的是解码过的值。同样是没有被解析的
 - r.MultipartForm：用于文件上传的表单，调用r.ParseMultipartForm后才能使用
-- r.Url.RawQuery：未解码的查询参数，返回 ? 之后的字符串，r.Url.Query()可以解析RawQuery，返回解码后的map
+
+上面三个都是request中的field，但是都是nil值，只有被解析后才有值，request没有自己去解析它
+
+- r.FormValue(key string)
+- r.PostFormValue(key string)
+
+得到上面对应的两个值，他们在底层都会调用r.ParseMultipartForm解析请求里的参数
+
+- r.Url.RawQuery：未解码的查询参数，返回 ? 之后的字符串，
+
+r.Url.Query()可以解析RawQuery，返回解码后的map
 

@@ -25,7 +25,7 @@ content-type是发送表单请求中常见的字段，它有很多值，一般�
 
 - application/x-www-form-urlencoded
 
-当使用form表单且没有文件上传时，这是默认的编码方式，一般用于纯键值对的上传。数据被编码成键值对，如果是get请求，会编码在url中，如果是post/put/patch等这些方法，则编码在body中
+当使用form表单且没有文件上传时，这是默认的编码方式，一般用于纯键值对的上传。数据被编码成键值对，如果是get请求，会编码在url中，如果是post/put/patch等这些方法，则编码在body中，都是以 n1=v1&n2=v2&n3=v3 的形式上传的
 
 - multipart/form-data
 

@@ -10,18 +10,37 @@
 
 ## 通用缓存首部
 ![](img/5.png)
+- Pragma
+注：Pragma是旧产物，已经逐步抛弃，有些网站为了向下兼容还保留了这两个字段。如果一个报文中同时出现Pragma和Cache-Control时，以Pragma为准。同时出现Cache-Control和Expires时，以Cache-Control为准。即优先级从高到低是 Pragma -> Cache-Control -> Expires
+
+Pragma有两个字段Pragma和Expires。Pragma的值为no-cache时，表示禁用缓存，Expires的值是一个GMT时间，表示该缓存的有效时间。
+
+- Cache-control
+
 
 # 请求首部 
 
 ![](img/6.png)
 
 ## Accept
-表示请求想要获取的内容，服务器应该根据该头部字段发送给客户端合适的内容
+表示请求可以接受的内容类型，服务器应该根据该头部字段发送给客户端合适的内容
+
+    Accept：text/html, application/xhtml+xml, application/xml;q=0.9, image/webp, image/apng, */*; q=0.8
+
+- Accept-encoding：gzip, deflate, br
+向服务器申明客户端（浏览器）接收的编码方法，通常为压缩方法
+
+- Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7
+向服务器申明客户端（浏览器）接收的语言，浏览器能够接受 en-US, en 和 zh-CN 三种语言，其中 en-US 的权重最高 ( q 最高为1，最低为 0)，服务器优先返回 en-US 语言
+
+![](img/7.png)
 
 ## content-type
-content-type是发送表单请求中常见的字段，它有很多值，一般在表单中enctype设置有三种
+content-type是请求中常见的头部，用于表述请求的类型或发送内容的类型
 
-这三个值，表示不同的编码含义
+如果我们请求一个资源，content-type的值通常是MIME，content-type: text/html; charset=utf-8
+
+如果是发送表单的请求，content-type用于表明发送值的编码方式，在form中通过enctype属性设置
 
 - application/x-www-form-urlencoded
 
@@ -38,7 +57,11 @@ content-type是发送表单请求中常见的字段，它有很多值，一般�
 - text/plain
 一般向服务器发送json会使用这种格式
 
-![](img/7.png)
+当发送数据时，Content-type往往有两个值，第一个表述发送内容类型，第二个表述编码方式
+
+    content-type: application/json; charset=utf-8
+
+form表单中用accept-charset设置编码，通常是utf-8
 
 ## 条件请求首部
 ![](img/8.png)

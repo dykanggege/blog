@@ -422,8 +422,6 @@ go 中的类型大多都是值语义，以 interface{} 作为 any 类型，使�
 ## 值语义与引用语义
 slice、map、channel、interface，比较特殊，他们看起来像是引用类型，实际只是底层数据结构维护着指针，依旧是值语义
 
-
-
 # JSON
 ```
 	type Movie struct{

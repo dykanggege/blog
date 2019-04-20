@@ -75,4 +75,4 @@ Server-Push 主要是针对资源内联做出的优化，相较于 http/1.1 资�
 
 主流浏览器只支持基于stl加密的http2
 
-golang中使用https时，默认开启http2
+golang中使用https时，默认尝试开启http2，失败后退回倒http1.1

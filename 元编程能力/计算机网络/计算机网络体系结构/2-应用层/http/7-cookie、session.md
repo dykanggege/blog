@@ -60,3 +60,14 @@ cookie可以是请求头部，也可以是响应头部
 解决办法：可以通过cookie的HttpOnly属性，设置了HttpOnly属性，javascript代码将不能操作cookie。
 
 最好还是要将从用户得到的信息在存入数据库之前进行转义，这样更安全
+
+# session
+通过客户端的cookieid可以在服务器上维护一个唯一的session，对应这个用户
+
+所谓session就是一个数据结构，类似于map\[key]data，cookie就是key，通过key得到data，这个data可以存入任何数据或取出已经存入的数据
+
+所以可以通过session维护用户的登录操作，具体实现如下：
+
+1. 接受倒一个请求，获取请求中request的cookie值，如果能获取到cookieid，则用户已经登录，通过cookieid获取session，从session中获取用户身份信息，否则用户未登录
+2. 跳转用户登录，验证账号密码，response中设置cookieid，为cookieid创建session，将session中存入一个数据(例如：userid)保存用户登录状态
+3. 单点登录：如果用户使用其他浏览器(没有cookieid)，或者在其他主机登录，总之没有cookieid，则

@@ -68,6 +68,13 @@
 # slice
 - 切片：相同类型元素的可变长度序列,[]T
 - slice的底层还是数组，它的本质是一个数据结构，有三个属性
+```
+type slice struct {
+	array unsafe.Pointer
+	len   int
+	cap   int
+}
+```
   - 以 arr \[30]int; sli = arr\[5:10] 做例子
   - 指针：指向底层数组，sli保存的指针指向 arr\[5]，以地址偏移访问
   - len：切片的长度，len(slice)得到长度，len = 10 - 5 = 5，对切片的下标访问不能超过 len

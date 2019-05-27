@@ -126,7 +126,7 @@ func (mr *Master) run(
 	// 这两个函数都需要外面传入
 	schedule(mapPhase)    // 安排map任务  schedule即master.go 64行传入的函数
 	schedule(reducePhase) // 安排reduce任务
-	finish()              // 任务完成，不太懂这步操作是干啥的
+	finish()              // 任务完成
 
 	mr.merge() // 合并结果
 

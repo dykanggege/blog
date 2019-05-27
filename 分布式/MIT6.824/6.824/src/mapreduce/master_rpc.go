@@ -23,7 +23,7 @@ func (mr *Master) Shutdown(_, _ *struct{}) error {
 // Register函数是M和R的心跳函数
 func (mr *Master) startRPCServer() {
 	rpcs := rpc.NewServer()
-	rpcs.Register(mr) // 注册自己的方法
+	rpcs.Register(mr) // 注册自己的方法address
 	os.Remove(mr.address) // only needed for "unix"
 	l, e := net.Listen("unix", mr.address)  // unix套接字，套接字和文件绑定
 	if e != nil {

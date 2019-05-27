@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="196f5c2f-bb54-4ee5-9a3c-af27c9c9f389" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/mapreduce/util.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mapreduce/master.go" beforeDir="false" afterPath="$PROJECT_DIR$/mapreduce/master.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mapreduce/master_rpc.go" beforeDir="false" afterPath="$PROJECT_DIR$/mapreduce/master_rpc.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mapreduce/schedule.go" beforeDir="false" afterPath="$PROJECT_DIR$/mapreduce/schedule.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mapreduce/worker.go" beforeDir="false" afterPath="$PROJECT_DIR$/mapreduce/worker.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -10,80 +15,118 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FavoritesManager">
+    <favorites_list name="src" />
+  </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mapreduce/master.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="600">
-              <caret line="91" column="15" selection-start-line="91" selection-start-column="15" selection-end-line="91" selection-end-column="15" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/mapreduce/master_rpc.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="214">
-              <caret line="19" column="23" lean-forward="true" selection-start-line="19" selection-start-column="23" selection-end-line="19" selection-end-column="23" />
-              <folding>
-                <element signature="e#1105#1179#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mapreduce/master_splitmerge.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="18" column="6" selection-start-line="18" selection-start-column="6" selection-end-line="18" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mapreduce/common.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="12" column="21" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mapreduce/test_test.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="227">
-              <caret line="134" column="18" lean-forward="true" selection-start-line="134" selection-start-column="18" selection-end-line="134" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mapreduce/common_map.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="741">
-              <caret line="91" selection-start-line="91" selection-end-line="91" />
-              <folding>
-                <element signature="e#19#71#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mapreduce/common_reduce.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <folding>
-                <element signature="e#19#52#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.5">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/mapreduce/master.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state>
+                  <folding>
+                    <element signature="e#19#51#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/mapreduce/common.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="300">
+                  <caret line="15" column="10" selection-start-line="15" selection-start-column="10" selection-end-line="15" selection-end-column="10" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/mapreduce/master_splitmerge.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="225">
+                  <caret line="16" column="19" selection-start-line="16" selection-start-column="19" selection-end-line="16" selection-end-column="19" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/mapreduce/common_reduce.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="25">
+                  <caret line="67" column="37" selection-start-line="67" selection-start-column="37" selection-end-line="67" selection-end-column="37" />
+                  <folding>
+                    <element signature="e#19#52#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/mapreduce/readme.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="875">
+                  <caret line="35" column="3" selection-start-line="35" selection-start-column="3" selection-end-line="35" selection-end-column="3" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/mapreduce/schedule.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="173">
+                  <caret line="95" column="5" lean-forward="true" selection-start-line="95" selection-start-column="5" selection-end-line="95" selection-end-column="5" />
+                  <folding>
+                    <element signature="e#1138#1849#0" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/mapreduce/master.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="350">
+                  <caret line="18" column="19" selection-start-line="18" selection-start-column="19" selection-end-line="18" selection-end-column="19" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/mapreduce/worker.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="25">
+                  <caret line="57" column="12" selection-start-line="57" selection-start-column="12" selection-end-line="57" selection-end-column="12" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/mapreduce/common_rpc.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="192">
+                  <caret line="57" selection-start-line="57" selection-end-line="57" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/mapreduce/test_test.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="275">
+                  <caret line="192" column="15" lean-forward="true" selection-start-line="192" selection-start-column="15" selection-end-line="192" selection-end-column="15" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -95,12 +138,26 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>doneChannel</find>
-      <find>shutdown</find>
       <find>stats</find>
       <find>debugEnabled</find>
       <find>Merge:</find>
       <find>Merge</find>
       <find>open</find>
+      <find>CleanupFiles</find>
+      <find>merge</find>
+      <find>call</find>
+      <find>register</find>
+      <find>close(taskch)</find>
+      <find>close</find>
+      <find>fmt</find>
+      <find>Register</find>
+      <find>needs exactly three</find>
+      <find>Lock</find>
+      <find>log.fatal</find>
+      <find>method</find>
+      <find>lock</find>
+      <find>mr.lock</find>
+      <find>shutdown</find>
     </findStrings>
   </component>
   <component name="GOROOT" path="/media/kanggege/_dde_data/codeEnv/go" />
@@ -110,26 +167,21 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/mapreduce/master.go" />
         <option value="$PROJECT_DIR$/mapreduce/util.go" />
         <option value="$PROJECT_DIR$/mapreduce/common_map.go" />
         <option value="$PROJECT_DIR$/mapreduce/test_test.go" />
-        <option value="$PROJECT_DIR$/mapreduce/master_rpc.go" />
         <option value="$PROJECT_DIR$/mapreduce/common.go" />
         <option value="$PROJECT_DIR$/mapreduce/common_reduce.go" />
+        <option value="$PROJECT_DIR$/main.go" />
+        <option value="$PROJECT_DIR$/mapreduce/master_rpc.go" />
+        <option value="$PROJECT_DIR$/mapreduce/master.go" />
+        <option value="$PROJECT_DIR$/mapreduce/worker.go" />
+        <option value="$PROJECT_DIR$/mapreduce/schedule.go" />
       </list>
     </option>
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="mncGWBUt" />
-  </component>
-  <component name="ProjectConfigurationFiles">
-    <option name="files">
-      <list>
-        <option value="$PROJECT_DIR$/.idea/vcs.xml" />
-        <option value="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      </list>
-    </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="865" />
@@ -145,7 +197,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -162,11 +213,13 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="DefaultGoTemplateProperty" value="Go File" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.gopath.indexing.explicitly.defined" value="true" />
     <property name="go.import.settings.migrated" value="true" />
@@ -174,6 +227,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunDashboard">
@@ -188,7 +242,40 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Go Test.TestSequentialSingle in test_test.go">
+  <component name="RunManager" selected="Go Test.TestManyFailures in mit6.824/mapreduce">
+    <configuration name="TestBasic in mit6.824/mapreduce" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="src" />
+      <working_directory value="$PROJECT_DIR$/mapreduce" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="mit6.824/mapreduce" />
+      <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/" />
+      <pattern value="^TestBasic$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestManyFailures in mit6.824/mapreduce" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="src" />
+      <working_directory value="$PROJECT_DIR$/mapreduce" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="mit6.824/mapreduce" />
+      <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/" />
+      <pattern value="^TestManyFailures$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestOneFailure in mit6.824/mapreduce" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="src" />
+      <working_directory value="$PROJECT_DIR$/mapreduce" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="mit6.824/mapreduce" />
+      <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/" />
+      <pattern value="^TestOneFailure$" />
+      <method v="2" />
+    </configuration>
     <configuration name="TestSequentialMany in mit6.824/mapreduce" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="src" />
       <working_directory value="$PROJECT_DIR$/mapreduce" />
@@ -212,37 +299,72 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Test.TestSequentialSingle in test_test.go" />
+        <item itemvalue="Go Test.TestManyFailures in mit6.824/mapreduce" />
+        <item itemvalue="Go Test.TestOneFailure in mit6.824/mapreduce" />
+        <item itemvalue="Go Test.TestBasic in mit6.824/mapreduce" />
         <item itemvalue="Go Test.TestSequentialMany in mit6.824/mapreduce" />
+        <item itemvalue="Go Test.TestSequentialSingle in test_test.go" />
       </list>
     </recent_temporary>
   </component>
   <component name="TestHistory">
-    <history-entry file="TestSequentialMany_in_mit6_824_mapreduce - 2019.05.26 at 15h 23m 39s.xml">
-      <configuration name="TestSequentialMany in mit6.824/mapreduce" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestManyFailures_in_mit6_824_mapreduce - 2019.05.27 at 14h 13m 57s.xml">
+      <configuration name="TestManyFailures in mit6.824/mapreduce" configurationId="GoTestRunConfiguration" />
     </history-entry>
-    <history-entry file="TestSequentialSingle_in_test_test_go - 2019.05.26 at 15h 23m 50s.xml">
-      <configuration name="TestSequentialSingle in test_test.go" configurationId="GoTestRunConfiguration" />
+    <history-entry file="TestManyFailures_in_mit6_824_mapreduce - 2019.05.27 at 14h 16m 09s.xml">
+      <configuration name="TestManyFailures in mit6.824/mapreduce" configurationId="GoTestRunConfiguration" />
     </history-entry>
+    <history-entry file="TestManyFailures_in_mit6_824_mapreduce - 2019.05.27 at 18h 12m 06s.xml">
+      <configuration name="TestManyFailures in mit6.824/mapreduce" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+    <history-entry file="TestOneFailure_in_mit6_824_mapreduce - 2019.05.27 at 18h 12m 55s.xml">
+      <configuration name="TestOneFailure in mit6.824/mapreduce" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+    <history-entry file="TestBasic_in_mit6_824_mapreduce - 2019.05.27 at 18h 14m 06s.xml">
+      <configuration name="TestBasic in mit6.824/mapreduce" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+    <history-entry file="TestBasic_in_mit6_824_mapreduce - 2019.05.27 at 18h 21m 36s.xml">
+      <configuration name="TestBasic in mit6.824/mapreduce" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+    <history-entry file="TestBasic_in_mit6_824_mapreduce - 2019.05.27 at 18h 29m 03s.xml">
+      <configuration name="TestBasic in mit6.824/mapreduce" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+    <history-entry file="TestBasic_in_mit6_824_mapreduce - 2019.05.27 at 18h 29m 43s.xml">
+      <configuration name="TestBasic in mit6.824/mapreduce" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+    <history-entry file="TestOneFailure_in_mit6_824_mapreduce - 2019.05.27 at 18h 29m 51s.xml">
+      <configuration name="TestOneFailure in mit6.824/mapreduce" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+    <history-entry file="TestManyFailures_in_mit6_824_mapreduce - 2019.05.27 at 18h 30m 06s.xml">
+      <configuration name="TestManyFailures in mit6.824/mapreduce" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-1" width="1920" height="1082" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.33699232" weight="0.21282327" />
+      <window_info id="Structure" order="1" sideWeight="0.6630077" side_tool="true" weight="0.21282327" />
+      <window_info id="Favorites" order="2" sideWeight="0.50054884" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.42261252" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.43468717" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32930845" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" />
       <window_info anchor="bottom" id="Version Control" order="9" />
-      <window_info anchor="bottom" id="Terminal" order="10" weight="0.687157" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="10" visible="true" weight="0.43578485" />
       <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -293,66 +415,121 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mapreduce/readme.go">
+    <entry file="file:///media/kanggege/_dde_data/codeEnv/go/src/net/rpc/server.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret lean-forward="true" />
+        <state relative-caret-position="289">
+          <caret line="197" column="5" selection-start-line="197" selection-start-column="5" selection-end-line="197" selection-end-column="5" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mapreduce/common.go">
+    <entry file="file://$PROJECT_DIR$/mapreduce/824-mrinput-76.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="718">
+          <caret line="1000" lean-forward="true" selection-start-line="1000" selection-end-line="1000" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mapreduce/824-mrinput-98.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/wc.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
-          <caret line="12" column="21" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
+          <caret line="17" column="22" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="22" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mapreduce/master_splitmerge.go">
+    <entry file="file://$PROJECT_DIR$/main.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="18" column="6" selection-start-line="18" selection-start-column="6" selection-end-line="18" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mapreduce/common_reduce.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#19#52#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="150">
+          <caret line="6" selection-start-line="6" selection-end-line="6" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mapreduce/common_map.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="741">
-          <caret line="91" selection-start-line="91" selection-end-line="91" />
+        <state relative-caret-position="675">
+          <caret line="36" column="18" lean-forward="true" selection-start-line="36" selection-start-column="18" selection-end-line="36" selection-end-column="18" />
           <folding>
             <element signature="e#19#71#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mapreduce/test_test.go">
+    <entry file="file://$PROJECT_DIR$/mapreduce/readme.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="227">
-          <caret line="134" column="18" lean-forward="true" selection-start-line="134" selection-start-column="18" selection-end-line="134" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mapreduce/master.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="600">
-          <caret line="91" column="15" selection-start-line="91" selection-start-column="15" selection-end-line="91" selection-end-column="15" />
+        <state relative-caret-position="875">
+          <caret line="35" column="3" selection-start-line="35" selection-start-column="3" selection-end-line="35" selection-end-column="3" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mapreduce/master_rpc.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="19" column="23" lean-forward="true" selection-start-line="19" selection-start-column="23" selection-end-line="19" selection-end-column="23" />
+        <state relative-caret-position="289">
+          <caret line="23" column="18" selection-start-line="23" selection-start-column="18" selection-end-line="23" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mapreduce/common_reduce.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="25">
+          <caret line="67" column="37" selection-start-line="67" selection-start-column="37" selection-end-line="67" selection-end-column="37" />
           <folding>
-            <element signature="e#1105#1179#0" />
+            <element signature="e#19#52#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mapreduce/common.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="15" column="10" selection-start-line="15" selection-start-column="10" selection-end-line="15" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mapreduce/common_rpc.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="57" selection-start-line="57" selection-end-line="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mapreduce/master.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#19#51#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mapreduce/master_splitmerge.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="16" column="19" selection-start-line="16" selection-start-column="19" selection-end-line="16" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mapreduce/worker.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="25">
+          <caret line="57" column="12" selection-start-line="57" selection-start-column="12" selection-end-line="57" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mapreduce/test_test.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="275">
+          <caret line="192" column="15" lean-forward="true" selection-start-line="192" selection-start-column="15" selection-end-line="192" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mapreduce/schedule.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="173">
+          <caret line="95" column="5" lean-forward="true" selection-start-line="95" selection-start-column="5" selection-end-line="95" selection-end-column="5" />
+          <folding>
+            <element signature="e#1138#1849#0" />
           </folding>
         </state>
       </provider>

@@ -61,6 +61,7 @@ func (wk *Worker) register(master string) {
 
 // RunWorker sets up a connection with the master, registers its address, and
 // waits for tasks to be scheduled.
+// 创建一个work，调用Master.Register注册自己，然后循环等待被调用DoTask或Shutdown
 func RunWorker(MasterAddress string, me string,
 	MapFunc func(string, string) []KeyValue,
 	ReduceFunc func(string, []string) string,
@@ -80,6 +81,7 @@ func RunWorker(MasterAddress string, me string,
 		log.Fatal("RunWorker: worker ", me, " error: ", e)
 	}
 	wk.l = l
+	//向master注册该节点
 	wk.register(MasterAddress)
 
 	// DON'T MODIFY CODE BELOW

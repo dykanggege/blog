@@ -18,7 +18,7 @@ package raft
 //
 
 import "sync"
-import "labrpc"
+import "mit6.824/labrpc"
 
 // import "bytes"
 // import "encoding/gob"
@@ -212,6 +212,8 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.me = me
 
 	// Your initialization code here.
+
+
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())

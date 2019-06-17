@@ -21,7 +21,7 @@
 		if len(args) == 1:
 			print('hello')
 	
-	if __name__=='__main__'
+	if __name__=='__main__':
 		test()
 	
 	# 当运行某个 py 文件时，会把文件的 _name_ 设置为 '_main_' 通过这种方式标明主程序的入口，同样也可以用于非程序入口文件做测试

@@ -1,1 +1,5 @@
 package raft
+
+func mytest() {
+
+}

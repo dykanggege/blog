@@ -10,7 +10,7 @@ package raft
 // 我们使用最初的config.go文件分级测试你们的代码,所以你们可与修改这边的代码帮助你们调试，
 // 请在提交之前测试。
 
-import "labrpc"
+import "mit6.824/labrpc"
 import "log"
 import "sync"
 import "testing"

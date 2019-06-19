@@ -165,3 +165,21 @@ Error, do this: mount -t proc proc /proc
 同时会用到几个ipc的命令做进程通讯
 
     ipcmk
+
+
+    kanggege@kanggege-PC:~$ ipcmk -Q
+    Message queue id: 196608
+    kanggege@kanggege-PC:~$ ipcs -q
+
+    ------ Message Queues --------
+    key        msqid      owner      perms      used-bytes   messages    
+    0x0f50bae3 196608     kanggege   644        0            0           
+
+    kanggege@kanggege-PC:~$ sudo unshare --ipc --fork bash
+    [sudo] kanggege 的密码：
+    root@kanggege-PC:/home/kanggege# ipcs -q
+
+    ------ Message Queues --------
+    key        msqid      owner      perms      used-bytes   messages    
+
+

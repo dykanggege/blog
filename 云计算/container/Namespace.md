@@ -157,6 +157,13 @@ Error, do this: mount -t proc proc /proc
 
 
 ## IPC
+linux系统下进程间通讯：信号、管道、消息队列、socket
+- pid隔离后就无法使用信号通讯了
+- 匿名管道用于父子进程通讯，命名管道和文件系统有关，只要隔离文件系统就好
+- 隔离net后就无法使用localhost socket通讯了
+
+主要实现消息队列和共享内存隔离
+
 接下来不再用代码示例，直接用两个命令创建新的namespace
 
     nsenter：加入指定进程的指定类型的namespace，然后执行参数中指定的命令
@@ -166,20 +173,59 @@ Error, do this: mount -t proc proc /proc
 
     ipcmk
 
-
+    //创建一个消息队列
     kanggege@kanggege-PC:~$ ipcmk -Q
     Message queue id: 196608
+    //查看消息队列
     kanggege@kanggege-PC:~$ ipcs -q
 
     ------ Message Queues --------
     key        msqid      owner      perms      used-bytes   messages    
     0x0f50bae3 196608     kanggege   644        0            0           
 
+    //将当前进程隔离
     kanggege@kanggege-PC:~$ sudo unshare --ipc --fork bash
-    [sudo] kanggege 的密码：
     root@kanggege-PC:/home/kanggege# ipcs -q
 
     ------ Message Queues --------
     key        msqid      owner      perms      used-bytes   messages    
 
 
+## NET
+
+    kanggege@kanggege-PC:~$ readlink /proc/$$/ns/net
+    net:[4026532009]
+    kanggege@kanggege-PC:~$ sudo unshare --uts --net bash
+    root@kanggege-PC:/home/kanggege# readlink /proc/$$/ns/net
+    net:[4026532833]
+    root@kanggege-PC:/home/kanggege# ifconfig
+    root@kanggege-PC:/home/kanggege# ip link set lo up
+    root@kanggege-PC:/home/kanggege# ifconfig
+    lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+            inet 127.0.0.1  netmask 255.0.0.0
+            inet6 ::1  prefixlen 128  scopeid 0x10<host>
+            loop  txqueuelen 1000  (Local Loopback)
+            RX packets 0  bytes 0 (0.0 B)
+            RX errors 0  dropped 0  overruns 0  frame 0
+            TX packets 0  bytes 0 (0.0 B)
+            TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+## USER
+前面讲的命名空间都是相互独立，没有继承关系，而user namespace可以嵌套，由于user和权限息息相关，而权限会影响倒容器安全，所以要重视user
+
+user namespace可以嵌套（目前内核控制最多32层），除了系统默认的user namespace外，所有的user namespace都有一个父user namespace，每个user namespace都可以有零到多个子user namespace。 当在一个进程中调用unshare或者clone创建新的user namespace时，当前进程原来所在的user namespace为父user namespace，新的user namespace为子user namespace.
+
+    kanggege@kanggege-PC:~$ id
+    uid=1000(kanggege) gid=1000(kanggege) 组=1000(kanggege),7(lp),27(sudo),100(users),107(netdev),110(lpadmin),116(scanner),122(sambashare),996(docker)
+    kanggege@kanggege-PC:~$ readlink /proc/$$/ns/user
+    user:[4026531837]
+    kanggege@kanggege-PC:~$ unshare --user /bin/bash
+    nobody@kanggege-PC:~$ id
+    uid=65534(nobody) gid=65534(nogroup) 组=65534(nogroup)
+    nobody@kanggege-PC:~$ 
+
+当创建user namespce后，新的环境里就没有用户了，所以是nobody
+
+如果没有映射的话，当在新的user namespace中用getuid()和getgid()获取user id和group id时，系统将返回文件/proc/sys/kernel/overflowuid中定义的user ID以及proc/sys/kernel/overflowgid中定义的group ID，它们的默认值都是65534。也就是说如果没有指定映射关系的话，会默认映射到ID65534
+
+当隔离user时可以不用root权限，这时作为当前调用用户权限进入新的进程，如果使用root调用，则使用root权限进入新的进程

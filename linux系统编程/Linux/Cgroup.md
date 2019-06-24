@@ -147,6 +147,70 @@ pids可以限制进程总数
 
 子cgroup会受祖先cgroup的current和max限制，取min(c1,c2,c3)
 
+## memory
+    //在memory下创建了一个cgroup，查看文件
+    root@kanggege-PC:/sys/fs/cgroup/memory/test# ls
+    cgroup.clone_children  memory.kmem.failcnt	       memory.kmem.tcp.limit_in_bytes	   memory.max_usage_in_bytes	    memory.soft_limit_in_bytes	notify_on_release
+    cgroup.event_control   memory.kmem.limit_in_bytes      memory.kmem.tcp.max_usage_in_bytes  memory.move_charge_at_immigrate  memory.stat			tasks
+    cgroup.procs	       memory.kmem.max_usage_in_bytes  memory.kmem.tcp.usage_in_bytes	   memory.numa_stat		    memory.swappiness
+    memory.failcnt	       memory.kmem.slabinfo	       memory.kmem.usage_in_bytes	   memory.oom_control		    memory.usage_in_bytes
+    memory.force_empty     memory.kmem.tcp.failcnt	       memory.limit_in_bytes		   memory.pressure_level	    memory.use_hierarchy
+
+memory提供了很多功能，但很多我们用不到
+
+    cgroup.event_control       #用于eventfd的接口
+    memory.usage_in_bytes      #显示当前已用的内存
+    memory.limit_in_bytes      #设置/显示当前限制的内存额度
+    memory.failcnt             #显示内存使用量达到限制值的次数
+    memory.max_usage_in_bytes  #历史内存最大使用量
+    memory.soft_limit_in_bytes #设置/显示当前限制的内存软额度
+    memory.stat                #显示当前cgroup的内存使用情况
+    memory.use_hierarchy       #设置/显示是否将子cgroup的内存使用情况统计到当前cgroup里面
+    memory.force_empty         #触发系统立即尽可能的回收当前cgroup中可以回收的内存
+    memory.pressure_level      #设置内存压力的通知事件，配合cgroup.event_control一起使用
+    memory.swappiness          #设置和显示当前的swappiness
+    memory.move_charge_at_immigrate #设置当进程移动到其他cgroup中时，它所占用的内存是否也随着移动过去
+    memory.oom_control         #设置/显示oom controls相关的配置
+    memory.numa_stat           #显示numa相关的内存
+
+下面示例具体怎么用
+
+    //在第一个tty中，将自己加入并启动top命令
+    root@kanggege-PC:/sys/fs/cgroup/memory/test# echo $$ >> cgroup.procs 
+    root@kanggege-PC:/sys/fs/cgroup/memory/test# top
+    
+    //再打开一个命令窗口
+    root@kanggege-PC:/sys/fs/cgroup/memory/test# cat cgroup.procs 
+    6586
+    18860
+    //查看下已经使用的内存量，以字节为单位
+    root@kanggege-PC:/sys/fs/cgroup/memory/test# cat memory.usage_in_bytes 
+    3571712
+
+    #--------------------------第一个shell窗口----------------------
+    #回到第一个shell窗口
+    dev@dev:/sys/fs/cgroup/memory$ cd test
+    #这里两个进程id分别时第二个窗口的bash和top进程
+    dev@dev:/sys/fs/cgroup/memory/test$ cat cgroup.procs
+    4589
+    4664
+    #开始设置之前，看看当前使用的内存数量，这里的单位是字节
+    dev@dev:/sys/fs/cgroup/memory/test$ cat memory.usage_in_bytes
+    835584
+
+    #设置1M的限额
+    dev@dev:/sys/fs/cgroup/memory/test$ sudo sh -c "echo 1M > memory.limit_in_bytes"
+    #设置完之后记得要查看一下这个文件，因为内核要考虑页对齐, 所以生效的数量不一定完全等于设置的数量
+    dev@dev:/sys/fs/cgroup/memory/test$ cat memory.limit_in_bytes
+    1048576
+
+    #如果不再需要限制这个cgroup，写-1到文件memory.limit_in_bytes即可
+    dev@dev:/sys/fs/cgroup/memory/test$ sudo sh -c "echo -1 > memory.limit_in_bytes"
+    #这时可以看到limit被设置成了一个很大的数字
+    dev@dev:/sys/fs/cgroup/memory/test$ cat memory.limit_in_bytes
+    9223372036854771712
+
+    
 ## cpu
 
     root@kanggege-PC:/sys/fs/cgroup/cpu# ls

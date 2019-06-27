@@ -1,4 +1,5 @@
 # Dockerfile
+
 Dockerfile 是一个文本文件,其内包含了一条条的指令(Instruction),每一条指令构建一层,因此每一条指令的内容,就是描述该层应当如何构建。
 
 Dockerfile 支持 Shell 类的行尾添加 \ 的命令换行方式,以及行首 # 进行注释的格式。良好的格式,比如换行、缩进、注释等,会让维护、排障更为容易,这是一个比较好的习惯
@@ -157,3 +158,27 @@ Dockerfile 中的其它指令都是为了定制当前镜像而准备的，唯有
 上面例子中我们使用 COPY --from=0 /go/src/github.com/go/helloworld/app . 从上一阶段的镜像中复制文件，我们也可以复制任意镜像中的文件。
 
     COPY --from=nginx:latest /etc/nginx/nginx.conf /nginx.conf
+
+
+# 构建最小镜像
+开发人员一般会用dockerfile打包好镜像，然后将镜像及其用法交给运维部署
+
+虽然镜像是分层构建，且多个镜像可公用中间层，若其他镜像没有用到这个中间层，那么你构建的镜像就切切实实的浪费了这么大的空间
+
+所有我们要在保证dockerfile可读的情况下，尽量减少镜像大小，避免浪费太多空间
+
+## .dockerignore
+dockerfile build时，会首先将其所在文件夹下所有文件复制倒docker server，如果复制了无用的文件，就会浪费很多时间
+
+同.gitignore，在dockerfile build时，设置忽略某些文件
+
+## alpine
+golang可以将程序编译成一个二进制文件，除了动态链接库，所有运行时依赖都被编译在二进制文件中
+
+scratch是一个空白镜像，它是个虚拟的概念，并不存在，不提供任何运行依赖
+
+alpine是docker官方出的一个精简过的linux最小子集，只有5M，一般建议直接用它，相比scratch只多了5M，但省了很多事
+
+所以go项目可以在编译后再构建镜像，避免打包依赖进去
+
+## 分阶段构建

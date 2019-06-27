@@ -1,3 +1,19 @@
+**go mod真垃圾**
+
+依赖管理的目的是限制项目使用的包，保证其安全性和可用性，附加功能是便于其他使用者加载依赖
+
+# 引入包
+在原来的$GOPATH设定中，包被缓存在src目录下，和项目在一起，且无法指定版本
+
+项目中以相对路径引入包，而相对的是 $GOPATH/src，一旦项目目录改变，就会对项目包的导入路径有影响，很难受
+
+官方建议使用v文件夹隔离版本，但对于其他用户加载依赖很不舒服，依赖更改时需要该引入路径等等不便
+
+go在1.5版本引入了vendor属性(默认关闭，需要设置go环境变量GO15VENDOREXPERIMENT=1)，并在1.6版本中默认开启了vendor属性。
+
+简单来说，vendor属性就是让go编译时，优先从项目源码树根目录下的vendor目录查找代码(可以理解为切了一次GOPATH)，如果vendor中有，则不再去GOPATH中去查找，但仍不能解决版本依赖问题
+
+# GO111MODULE
 go1.11中引入了mod作为管理工具，它通过一个环境变量GO111MODULE设置，其默认值是auto
 
 - on：不使用GOPATH，只使用go mod
@@ -8,21 +24,50 @@ go1.11中引入了mod作为管理工具，它通过一个环境变量GO111MODULE
 
 或是 export GO111MODULE=on 暂时开启
 
-go.mod文件还可以指定要替换和排除的版本，命令行会自动根据go.mod文件来维护需求声明中的版本。如果想获取更多的有关go.mod文件的介绍，可以使用命令go help go.mod。
-go.mod文件用//注释，而不用/**/。文件的每行都有一条指令，由一个动作加上参数组成。例如：
+建议不要再把项目放在$GOPATH/src下，以后$GOPATH也会被逐渐弃用
+
+# 依赖配置
+- go mod init tmod //包名最好和文件夹名相同，包名是作为给其他项目引入的名字
+
+在$GOPATH/src外创建一个文件夹，初始化一个模块，会自动创建go.mod文件用来管理项目依赖配置
+
+包名为 tmod,则项目内部的包就是以 tmod/ 为前缀的
+
+独立项目中无法引用到 $GOPATH/src 下的包，可以使用go get github/...@版本(或者不加版本号默认使用最新版) 加载依赖到项目中，或者手动写入(不建议)
+
+此时的get不会将依赖加载到 $GOPATH/src 下，而是将包信息配置在 go.mod 中，将下载信息放在 go.sum 中，并且将包按版本号缓存在 $GOPAH/pkg/mod 中
+
+- go mod vendor
+
+goland如果开启vgo模式，在这种情况下无法生成代码提示，需要 go mod vendor 加载依赖包到当前目录下后，才有代码提示
+
+加载依赖时最容易碰到的问题就是 golang.org 下包加载问题，可以设置环境变量 GOPROXY=https://goproxy.io 官方代理
+
+- go list -m all 查看项目的所有依赖
+
+## 给已有项目加载依赖
+将项目依赖的包手动写到 go.mod 中，编译、运行项目或 go mod vendor，
+
+## 依赖
 
     module my/thing
-    require other/thing 	v1.0.2
-    require new/thing 		v2.3.4
-    exclude old/thing 		v1.2.3
+    require (
+        other/thing 	v1.0.2
+        new/thing 		v2.3.4
+    )
+    exclude old/thing 		latest
     replace bad/thing 		v1.4.5 	=> good/thing v1.4.5
 
-上面三个动词require、exclude、replace分别表示：项目需要的依赖包及版本、排除某些包的特别版本、取代当前项目中的某些依赖包
 
-- go mod init modulename
+require指依赖某个包的版本，replace将对某个包的依赖更换为另一个包，exclude排除某些包的特别版本
 
-初始化一个模块，会自动创建go.mod文件
+## 版本控制
+go.mod文件还可以指定要替换和排除的版本，命令行会自动根据go.mod文件来维护需求声明中的版本。如果想获取更多的有关go.mod文件的介绍，可以使用命令go help go.mod。
 
+go.mod文件用//注释，而不用/**/。文件的每行都有一条指令，由一个动作加上参数组成。例如：
+
+
+# download
 - go mod download
 
     go mod download [-dir] [-json] [modules]

@@ -1,5 +1,3 @@
-**go mod真垃圾**
-
 依赖管理的目的是限制项目使用的包，保证其安全性和可用性，附加功能是便于其他使用者加载依赖
 
 # 引入包
@@ -12,6 +10,8 @@
 go在1.5版本引入了vendor属性(默认关闭，需要设置go环境变量GO15VENDOREXPERIMENT=1)，并在1.6版本中默认开启了vendor属性。
 
 简单来说，vendor属性就是让go编译时，优先从项目源码树根目录下的vendor目录查找代码(可以理解为切了一次GOPATH)，如果vendor中有，则不再去GOPATH中去查找，但仍不能解决版本依赖问题
+
+借助于vendor的功能，陆续出现了dep等包管理工具，但是在1.112中，将vendor功能禁了
 
 # GO111MODULE
 go1.11中引入了mod作为管理工具，它通过一个环境变量GO111MODULE设置，其默认值是auto
@@ -34,6 +34,12 @@ go1.11中引入了mod作为管理工具，它通过一个环境变量GO111MODULE
 包名为 tmod,则项目内部的包就是以 tmod/ 为前缀的
 
 独立项目中无法引用到 $GOPATH/src 下的包，可以使用go get github/...@版本(或者不加版本号默认使用最新版) 加载依赖到项目中，或者手动写入(不建议)
+
+    go get github.com/gorilla/mux           #匹配最新的一个tag
+    go get github.com/gorilla/mux@latest    #跟上面一样
+    go get github.com/gorilla/mux@master    #匹配master分支
+    go get github.com/gorilla/mux@v1.6.2    #匹配v1.6.2
+    go get github.com/gorilla/mux@c856192   #匹配commit的SHA-1码的版本
 
 此时的get不会将依赖加载到 $GOPATH/src 下，而是将包信息配置在 go.mod 中，将下载信息放在 go.sum 中，并且将包按版本号缓存在 $GOPAH/pkg/mod 中
 
@@ -67,7 +73,7 @@ go.mod文件还可以指定要替换和排除的版本，命令行会自动根�
 go.mod文件用//注释，而不用/**/。文件的每行都有一条指令，由一个动作加上参数组成。例如：
 
 
-# download
+# 缓存依赖
 - go mod download
 
     go mod download [-dir] [-json] [modules]
@@ -84,6 +90,9 @@ go.mod文件用//注释，而不用/**/。文件的每行都有一条指令，�
 
 用法：go mod vendor [-v]，此命令会将build阶段需要的所有依赖包放到主模块所在的vendor目录中，并且测试所有主模块的包。同理go mod vendor -v会将添加到vendor中的模块打印到标准输出。
 
+使用mod后，包依赖会被本机缓存到$GOPATH/src/pkg/mod中，go build默认会使用本机缓存，我们可以使用 go build -mod=vendor 更改编译依赖倒vendor文件夹下
+
 - go mod verify
 
 用法：go mod verify。此命令会检查当前模块的依赖是否已经存储在本地下载的源代码缓存中，以及检查自从下载下来是否有修改。如果所有的模块都没有修改，那么会打印all modules verified，否则会打印变化的内容
+

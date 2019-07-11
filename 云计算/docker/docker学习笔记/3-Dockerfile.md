@@ -182,3 +182,13 @@ alpine是docker官方出的一个精简过的linux最小子集，只有5M，一�
 所以go项目可以在编译后再构建镜像，避免打包依赖进去
 
 ## 分阶段构建
+
+最早dockerfile中只能有一个from，现在docker支持多阶段构建，可以使用第一个镜像作为第二个镜像的基础
+
+```
+    FROM golang as builder
+    ...
+    FROM alpine
+
+    COPY --from=builder /app/server /
+```

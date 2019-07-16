@@ -210,6 +210,9 @@ linux系统下进程间通讯：信号、管道、消息队列、socket
             TX packets 0  bytes 0 (0.0 B)
             TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 
+
+net隔离了网络空间
+
 ## USER
 前面讲的命名空间都是相互独立，没有继承关系，而user namespace可以嵌套，由于user和权限息息相关，而权限会影响倒容器安全，所以要重视user
 

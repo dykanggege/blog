@@ -19,6 +19,8 @@
 
 ![](img/1.png)
 
+在main函数执行前，所有的代码都运行在同一个goroutine，如果init中用go启动新的goroutine，只有进入main后才可能被执行到
+
 # 流程控制
 ## if
 ```

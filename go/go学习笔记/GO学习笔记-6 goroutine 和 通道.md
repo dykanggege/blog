@@ -6,7 +6,7 @@
 ### 栈
 -os 中创建一个线程就会为其分配栈大小，通常是2M（linux可以通过 ulimit -s 查看，jvm openjdk线程默认可能是1M，可以设置改变），对于小的线程过于浪费，大的线程反而不够用。
 
-每一个 goroutine 初始栈大小通常为 2k，也是用于放置正在执行或临时暂停的函数中的局部变量，而后可以增大或缩小，最大可到 1G 
+每一个 goroutine 初始栈大小通常为 2k，也是用于放置正在执行或临时暂停的函数中的局部变量，而后可以增大或缩小，最大可到 1G(是不是感觉有点眼熟，其实就是并发调用函数)
 
 ### 调度
 os 线程由 os 内核来调度，每隔几毫秒，一个硬件时针中断发送到 cpu，cpu 调用一个叫调度器的内核函数，调度器暂停当前正在运行的线程，把它的寄存器信息保存到内存，查看线程表并决定接下来运行哪个线程，并从内存中恢复他们的注册表信息。每次线程切换需要陷入os内核态，且控制权限从一个线程交给另一个线程需要一个完整的上下文切换：保存一个线程的数据到内存，再从内存中取出另一个线程，再更新调度器的数据结构。整个过程是比较慢的。
@@ -199,6 +199,53 @@ GO调度器使用GOMAXPROCS来决定底层使用多少个os线程来执行go代�
     }
 
 ```
+
+## 生产者消费者模型
+
+    func main(){
+        temp := 1
+        pool := make(chan interface{},10)
+        pstop := product(pool, func() interface{} {
+            temp++
+            return temp
+        })
+        cstop := consumer(pool, func(i interface{}) {
+            fmt.Println(i)
+        })
+        
+        time.Sleep(5*time.Second)
+        pstop <- struct{}{}
+        cstop <- struct{}{}
+    }
+
+    func product(ch chan interface{},f func()interface{})  chan<- struct{}{
+        stop := make(chan struct{})
+        go func() {
+            for {
+                select {
+                case <-stop:
+                    return
+                case ch <- f():
+                }
+            }
+        }()
+        return stop
+    }
+
+    func consumer(ch chan interface{},f func(interface{}))  chan<- struct{} {
+        stop := make(chan struct{})
+        go func() {
+            for {
+                select {
+                case <- stop:
+                    return
+                case v := <- ch:
+                    go f(v)
+                }
+            }
+        }()
+        return stop
+    }
 
 ### 单向信道
 之前我们讨论的都是双向信道，在使用双向信道时必须通信双方配合好，否则会发生宕机 panic。其实也可以创建单向通道，这种通道只能接受不能发送。

@@ -10,13 +10,27 @@
 
 ## 通用缓存首部
 ![](img/5.png)
-- Pragma
-注：Pragma是旧产物，已经逐步抛弃，有些网站为了向下兼容还保留了这两个字段。如果一个报文中同时出现Pragma和Cache-Control时，以Pragma为准。同时出现Cache-Control和Expires时，以Cache-Control为准。即优先级从高到低是 Pragma -> Cache-Control -> Expires
 
-Pragma有两个字段Pragma和Expires。Pragma的值为no-cache时，表示禁用缓存，Expires的值是一个GMT时间，表示该缓存的有效时间。
+### Pragma
 
-- Cache-control
+注：Pragma是1.0旧产物，已经逐步抛弃，有些网站为了向下兼容还保留了这两个字段。如果一个报文中同时出现Pragma和Cache-Control时，以Pragma为准。同时出现Cache-Control和Expires时，以Cache-Control为准。即优先级从高到低是 Pragma -> Cache-Control -> Expires
 
+Pragma有两个字段Pragma和Expires。Pragma的值为no-cache时，表示禁用缓存，Expires的值是一个GMT时间，表示该缓存的有效截止日期。
+
+### Cache-control
+作为请求～～～
+![](img/15.png)
+
+作为相应
+![](img/16.png)
+
+当服务器发送资源给客户端时，也会用一些首部让客户端缓存资源
+
+    Last-Modified: Fri，22 ...
+
+下次客户端请求带着这个头部，如果服务器没有修改资源就返回304，减少了传输
+
+缓存挺复杂的,具体的以后用到了再查
 
 # 请求首部 
 

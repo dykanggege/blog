@@ -31,7 +31,7 @@ cookie可以是请求头部，也可以是响应头部
 
     Set-Cookie:key="i am a cookie"; Max-Age=10; HttpOnly
 
-如果不设置Max-Age或值为0，则浏览器获取cookie后会暂存，下次再访问获取到cookie的domain+path网页，会携带cookie，直到浏览器被关闭后才清除
+如果不设置Max-Age或值为0，则浏览器获取cookie后会暂存，下次再访问获取到cookie的domain+path网页(一般只要是相同顶级域名就携带)，会携带cookie，直到浏览器被关闭后才清除
 
 如果值>0，则会缓存，直到过期被删除
 
@@ -68,6 +68,38 @@ cookie可以是请求头部，也可以是响应头部
 
 所以可以通过session维护用户的登录操作，具体实现如下：
 
-1. 接受倒一个请求，获取请求中request的cookie值，如果能获取到cookieid，则用户已经登录，通过cookieid获取session，从session中获取用户身份信息，否则用户未登录
+1. 接受到一个请求，获取请求中request的cookie值，如果能获取到cookieid，则用户已经登录，通过cookieid获取session，从session中获取用户身份信息，否则用户未登录
 2. 跳转用户登录，验证账号密码，response中设置cookieid，为cookieid创建session，将session中存入一个数据(例如：userid)保存用户登录状态
-3. 单点登录：如果用户使用其他浏览器(没有cookieid)，或者在其他主机登录，总之没有cookieid，则
+
+## 单机
+这种登录方式很简单，但是局限于单机应用，如果几十万的用户登录，一个服务器维护几十万session，就很吃力了，如果采用多个机器负载均衡，就要两个机器间同步session，否则第二次请求发到没有session的机器上，就要重新登录，局限太多
+
+## 缓存
+于是就有了缓存技术，用一个机器运行类redis数据库专门存储session，所有机器都去redis机器查，但是这个机器挂了所有人就要重新登录一次了,gg
+
+为了避免单节点失效，就有了分布式session，为了存个session搞这么大的事，cookieid还容易被劫持，真麻烦，有没有简单方法
+
+## token
+要是能把session存在客户端就好了，众所周知这是不安全的，要是能让他安全存在客户端，就不用操心session存储和cookie劫持了
+
+回到起点想一想session的作用，如果用户登录就给他创建一个session返回cookie，通过cookieid查找session，通过查找结果就能知道是否登录
+
+1. 用户账号密码登录
+2. 服务器验证，成功后创建sessionid-value，将sessionid作为cookie值返回
+3. 用户访问同一个域名下的网页自动携带cookie即sessionid
+4. 服务器获取cookie，得到sessionid，查找对应value，获取用户登录状态以及其他信息
+
+其本质就是维护一个登录状态，为什么不直接返回cookie维护呢？因为用户可以在客户端伪造cookie，但他无法在服务器上伪造session
+
+如果我们创造一个只有登录后才会有且无法伪造的cookie，服务端就不需要维护session，登录状态维护在客户端，问题就解决了
+
+来吧万能的加密算法
+
+我们可以将 **SHA256(uid + 秘钥) 得到一个token**，返回给客户端让他以后登录都带着token，这个秘钥他不知道，所以客户端无法伪造，而服务端可以通过秘钥检测token是否正确。就解决了sessionid的问题，但是token还是能被劫持！
+
+基于token的认证服务如下
+
+1. 用户账号密码登录
+2. 服务器验证，正确后查找uid，token=单向加密算法(登录状态 + 秘钥)，将登录状态+token返回给客户端
+3. 用户访问该域名(或还能指定其他域名)时自动携带
+4. 服务器验证token是否正确，判断登录状态

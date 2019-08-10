@@ -11,8 +11,10 @@ M是真正调度系统的执行者，每个M就像一个勤劳的工作者，总
 
 M在绑定有效的P后，进入调度循环，而且M并不保留G状态，这是G可以跨M调度的基础。
 
+默认P的个数为runtime.GOMAXPROCS(runtime.NumCPU())，即CPU核心数
+
 ## P（processor）
-P表示逻辑processor，是线程M的执行的上下文。
+P表示逻辑processor，是线程M的执行的上下文，是G调度的容器。
 
 P的最大作用是其拥有的各种G对象队列、链表、cache和状态。
 
@@ -72,7 +74,7 @@ go func() ---> | G | ---> | P | local | <=== balance ===> | global | <--//--- | 
               +--> G.fn --> goexit --+ 
 
 
-              1. go func() 语气创建G。
+              1. go func() 语法创建G。
               2. 将G放入P的本地队列（或者平衡到全局全局队列）。
               3. 唤醒或新建M来执行任务。
               4. 进入调度循环

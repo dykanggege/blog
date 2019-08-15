@@ -18,4 +18,8 @@ tcp和udp编程都是借助于socket套接字实现的，下面主要介绍tcp�
     int epoll_wait(int epdfd, struct epoll_event *events, int maxevents, int timeout)
     //epoll_event 得到事件的集合、maxevents事件数量
 
+常用的应该是epoll，用的红黑树性能很好
+
+![](img/14.png)
+
 

@@ -28,6 +28,10 @@ bufio就是建立缓冲区，用额外的内存换取io性能
 
 默认下使用 4*1024 作为缓冲区，一般情况下这个也是最好的选择
 
+**如果每次都是确切的读取大量的数据，那么缓冲区只是多了一次复制开销，反而降低了性能**
+
+**但是类似ReadByte、Scanner这种操作，使用缓冲区数据可以减少系统调用，提高了性能**
+
 ## bufio.Reader
 将基础io的操作升级为缓冲io操作，除此之外添加了几个额外的功能
 
@@ -75,3 +79,30 @@ n, err := writer.WriteString("保证尽力写入，如果无法写入返回错�
 err = writer.Flush()
 ```
 
+# format
+## fmt.Fprint
+最基础的格式化输出
+
+    func Fprintf(w io.Writer, format string, a ...interface{}) (n int, err error)
+
+把w变为os.Stdout
+
+    func Printf(format string, a ...interface{}) (n int, err error)
+
+把w变成一个bytes.Buffer
+
+    func Sprintf(format string, a ...interface{}) string
+
+## fmt.Fscanf
+
+    func Fscanf(r io.Reader, format string, a ...interface{}) (n int, err error)
+
+r变为os.Stdin
+
+    func Scanf(format string, a ...interface{}) (n int, err error)
+
+将字符串包装成strings.Reader
+
+    func Sscanf(str string, format string, a ...interface{}) (n int, err error)
+
+一般情况下bufio就足够用了，需要格式化的场景，例如oj，或格式化输出字符串，才用到format包

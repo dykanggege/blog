@@ -1,27 +1,20 @@
 #include<stdio.h>
-#include<string.h>
 
-#define cl 1
+enum demo{
+    A = 1,
+    B = 2,
+    C,
+    D
+};
 
-void mygetline(char arr[],int n);
 
-int main() {
-    char str[10];
-    mygetline(str,10);
-    printf("%d",strlen(str));
-    return 0; //exit(0) 程序正常退出
+int main(void) {
+    double sum, func(void);
+    sum = func();
+    printf("%f",sum);
+    return 0;
 }
 
-void mygetline(char arr[],int n) {
-    char c;
-    int i;
-    for(i = 0; i < n-1; i++){
-        c = getchar();
-        if(c == EOF || c == '\n'){
-            i++;
-            break;
-        }
-        arr[i] = c;
-    }
-    arr[i] = '\0';
+double func(void) {
+    return 6;
 }

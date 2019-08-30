@@ -135,11 +135,61 @@ func (srv *Server) Serve(l net.Listener) error {
 
 
 /****************serve******************/
-//serve就是接收tcp包，并整合为http报文，其中有一行需要注意
+func (c *conn) serve(ctx context.Context) {
+	...
 
-	serverHandler{c.server}.ServeHTTP(w, w.req)
+	//对https连接处理
+	if tlsConn, ok := c.rwc.(*tls.Conn); ok {
+		if d := c.server.ReadTimeout; d != 0 {
+			c.rwc.SetReadDeadline(time.Now().Add(d))
+		}
+		if d := c.server.WriteTimeout; d != 0 {
+			c.rwc.SetWriteDeadline(time.Now().Add(d))
+		}
+		if err := tlsConn.Handshake(); err != nil {
+			// If the handshake failed due to the client not speaking
+			// TLS, assume they're speaking plaintext HTTP and write a
+			// 400 response on the TLS conn's underlying net.Conn.
+			if re, ok := err.(tls.RecordHeaderError); ok && re.Conn != nil && tlsRecordHeaderLooksLikeHTTP(re.RecordHeader) {
+				io.WriteString(re.Conn, "HTTP/1.0 400 Bad Request\r\n\r\nClient sent an HTTP request to an HTTPS server.\n")
+				re.Conn.Close()
+				return
+			}
+			c.server.logf("http: TLS handshake error from %s: %v", c.rwc.RemoteAddr(), err)
+			return
+		}
+		c.tlsState = new(tls.ConnectionState)
+		*c.tlsState = tlsConn.ConnectionState()
+		if proto := c.tlsState.NegotiatedProtocol; validNPN(proto) {
+			if fn := c.server.TLSNextProto[proto]; fn != nil {
+				h := initNPNRequest{tlsConn, serverHandler{c.server}}
+				fn(c.server, tlsConn, h)
+			}
+			return
+		}
+	}
 
-可以理解为前面都是接收数据包，并整合成http报文，构成request，这里才是获取到http之后的处理
+	// HTTP/1.x from here on.
+
+	ctx, cancelCtx := context.WithCancel(ctx)
+	c.cancelCtx = cancelCtx
+	defer cancelCtx()
+
+	c.r = &connReader{conn: c}
+	c.bufr = newBufioReader(c.r)
+	c.bufw = newBufioWriterSize(checkConnErrorWriter{c}, 4<<10)
+
+
+	//这个for循环将接收、分析、处理一个又一个的http请求，直至断开tcp连接
+	//头部阻塞的原因
+	for {
+		...
+		serverHandler{c.server}.ServeHTTP(w, w.req)
+		...
+	}
+}
+
+//可以理解为前面都是接收数据包，并整合成http报文，构成request，这里才是获取到http之后的处理
 
 type serverHandler struct {
 	srv *Server
@@ -160,11 +210,22 @@ serveHandle
 ```
 
 整个流程大致如下
+
+主线程
 1. 创建socket监听端口
-2. 接收到请求，建立维持心跳存活的tcp连接
-3. 尝试升级为http2
-4. tls证书握手
-5. 接收数据包，整合为http报文，调用serverHandler处理
+2. 升级为对每个conn维持心跳存活的socket
+3. 查看是否使用http2
+4. accept conn，创建新的goroutine处理conn，如果accept错误，则要休眠一段时间？
+
+goroutine
+1. tls证书握手
+2. 接收数据包，整合为http报文，调用serverHandler处理
+
+## Close
+除了常用的ListenAndServe，server还提供了其他的方法
+
+- Close() error 立即关闭所有请求
+- Shutdown(ctx context.Context) error 平稳关闭，把已有的连接处理完后关闭
 
 # Handler 路由器
 handler是真正用于处理http请求的接口，只有一个方法，ServeHTTP(ResponseWriter, *Request)

@@ -25,6 +25,20 @@ go标准库中会很常见的提供默认实现，client的默认实现
     func Post(url, contentType string, body io.Reader) (resp *Response, err error)
     func PostForm(url string, data url.Values) (resp *Response, err error)
 
+实际上他们底层调用的是
+
+```
+func (c *Client) Get(url string) (resp *Response, err error) {
+	req, err := NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	return c.Do(req)
+}
+```
+
+如果我们向对request做很多设置，可以自己创建request调用Do方法
+
 客户端不是讲解的重点，写俩demo示范下怎么用，主要看的是server
 
 ```

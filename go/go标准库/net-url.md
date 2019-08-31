@@ -26,7 +26,7 @@ scheme:  https
 host:  www.google.com:80 
 path:  /请求+(nb)=路径/path    //得到的就是解码后的path和query
 rawPath:  /请求+(nb)=路径/path
-rawQuery:  name=康搁搁&age=20&param=%26
+rawQuery:  name=康搁搁&age=20&param=%26 //rawQuery是不可靠的，不应该直接使用，而是调用 EscapedPath
 forceQuery:  false
 Opaque: 
 

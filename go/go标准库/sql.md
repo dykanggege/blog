@@ -98,6 +98,37 @@ func execSql(db *sql.DB) error  {
 }
 ```
 
+## prepare
+prepare将sql语句预编译，这样提高了查找性能，并且可以防止sql注入，一般情况建议都使用prepare
+
+```
+func prepare(db *sql.DB) error  {
+	stmt, err := db.Prepare("SELECT * FROM user")
+	if err != nil{
+		return err
+	}
+	stmt.Query() //这个stmt是编译后的执行句柄，可以query或exec
+	return nil
+}
+```
+
+## tx
+```
+func tx(db *sql.DB) error {
+	tx, err := db.Begin() //开启事务
+	db.BeginTx(context.TODO(),&sql.TxOptions{ //启动一个可配置的事务
+		ReadOnly:false, //是否只读
+		Isolation:sql.LevelRepeatableRead, //设置隔离级别为可重复读
+	})
+	if err != nil { return err}
+	result, err := tx.Exec("")
+	tx.Rollback() //回滚之前的操作
+	tx.Query("")
+	tx.Commit() //提交事务
+}
+
+```
+
 ## context
 1.8中给很多函数都提供了 Context 例如：
 
@@ -118,4 +149,7 @@ func execSql(db *sql.DB) error  {
 	return err
 }
 ```
+
+## conn
+上面的语句会自动启用一个conn并执行，你也可以手动获取一个conn，并在该连接上执行一系列语句，记得用完要 conn.Close() 释放连接
 

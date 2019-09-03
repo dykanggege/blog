@@ -327,3 +327,60 @@ if pattern[len(pattern)-1] == '/' {
 http库提供的路由器还是比较简陋的，路由性能不高，没有原生支持restful，没有路径参数解析等，可以使用其他第三方库如httprouter代替ServeMux
 
 有了http容器组件、路由注册发现组件，下面就可以处理request请求了
+
+# 接口
+http库提供了开箱即用的方法，但大多时候我们需要自己定制server
+
+    func (srv *Server) Close() error 关闭
+    func (srv *Server) ListenAndServe() error 使用默认的tcp连接
+    func (srv *Server) ListenAndServeTLS(certFile, keyFile string) error
+    func (srv *Server) RegisterOnShutdown(f func()) 
+    func (srv *Server) Serve(l net.Listener) error 基于tcp实现server
+    func (srv *Server) ServeTLS(l net.Listener, certFile, keyFile string) error
+    func (srv *Server) SetKeepAlivesEnabled(v bool) tcp是否保持长连接
+    func (srv *Server) Shutdown(ctx context.Context) error
+
+shutdown用于平滑关闭
+
+```
+//平滑的重启
+func NewServer() *http.Server {
+	server := &http.Server{}
+	server.Handler = gin.Default()
+	server.Addr = ":8899"
+	server.RegisterOnShutdown(func() {
+		fmt.Println("正在平滑关闭中...")
+	})
+	return server
+}
+
+
+func main() {
+	server := NewServer()
+
+	go func() {
+		err := server.ListenAndServe()
+		errHandle(err)
+	}()
+
+
+
+	sigint := make(chan os.Signal, 1)
+	signal.Notify(sigint, os.Interrupt)
+	for {
+		<- sigint
+		err := server.Shutdown(context.Background())
+		errHandle(err)
+		name, err := os.Executable()
+		errHandle(err)
+		err = syscall.Exec(name, os.Args, os.Environ())
+		errHandle(err)
+	}
+}
+
+func errHandle(err error) {
+	if err != nil{
+		log.Fatalln(err)
+	}
+}
+```

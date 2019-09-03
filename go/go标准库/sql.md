@@ -133,21 +133,9 @@ func tx(db *sql.DB) error {
 1.8中给很多函数都提供了 Context 例如：
 
 ```
-func execSql(db *sql.DB) error  {
-	ctx,stop := context.WithCancel(context.Background())
-	limit := time.Tick(5 * time.Second)
-	done := make(chan struct{})
-	go func() {
-		db.QueryRowContext(ctx,"",)
-		done <- struct{}{}
-	}()
-	select {
-	case <- limit:
-		stop()
-	case <- done:
-	}
-	return err
-}
+//限制在五秒内执行完成
+ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(time.Second*5))
+_ = db.QueryRowContext(ctx, "", )
 ```
 
 ## conn

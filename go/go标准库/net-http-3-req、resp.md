@@ -189,3 +189,44 @@ type ResponseWriter interface {
 
 	func SetCookie(w ResponseWriter, cookie *Cookie)
 
+# 其他
+
+## header
+- CanonicalHeaderKey(s string) string 把头部字段转换为标准头部，如Accept-Encoding
+- DetectContentType(data []byte) string 可以通过body内容检测到Content-Type，至少需要512b body数据，返回MIME类型，如果检测不出来就返回 application/octet-stream
+- ParseTime(text string) (t time.Time, err error) 尝试解析头部中关于时间的字段，解析为time类型
+
+## ResponseWriter
+
+- Error(w ResponseWriter, error string, code int) 提供了一个简单的方法向客户端返回错误信息
+- NotFound(w ResponseWriter, r *Request) 再包装一下，返回404
+- Redirect(w ResponseWriter, r *Request, url string, code int)，帮助重定向，url的相对路径基于当前request路径
+- ServeContent(w ResponseWriter, req *Request, name string, modtime time.Time, content io.ReadSeeker)，使用指定的内容回复request，它比io.Copy提供更多功能，自动设置Content-Type、缓存、等等
+- ServeFile(w ResponseWriter, r *Request, name string) 将某个文件写入到响应中，ServeContent的包装方法
+
+## FileSystem
+```
+//文件系统
+type FileSystem interface {
+    Open(name string) (File, error)
+}
+
+//将一个路径包装为文件系统
+type Dir string
+func (d Dir) Open(name string) (File, error)
+
+//使用文件系统创建文件服务
+func FileServer(root FileSystem) Handler
+
+//使用默认的mux创建文件系统
+http.Handle("/static/",http.StripPrefix("/static",http.FileServer(http.Dir("./static"))))
+```
+
+## Handler
+- NotFoundHandler() Handler
+- RedirectHandler(url string, code int) Handler
+- StripPrefix(prefix string, h Handler) Handler
+- TimeoutHandler(h Handler, dt time.Duration, msg string) Handler
+
+TimeoutHandler 这个最帅了,还可以再搞一个ContextHandler(ctx context.Context, h Handler, msg string)
+

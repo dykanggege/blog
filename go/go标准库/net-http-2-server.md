@@ -373,7 +373,12 @@ func main() {
 		errHandle(err)
 		name, err := os.Executable()
 		errHandle(err)
-		err = syscall.Exec(name, os.Args, os.Environ())
+
+		cmd := exec.Command(name, os.Args...)
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		err = cmd.Start()
 		errHandle(err)
 	}
 }

@@ -390,7 +390,7 @@ type map_impl struct{
 	}
 	
 	type Student struct {
-		Person //不能定义两个相同的匿名成员，否则会冲突
+		Person //不能定义两个相同的匿名成员，否则会冲突，匿名其实就是用类型名
 		Id    int
 		Score float64
 	}

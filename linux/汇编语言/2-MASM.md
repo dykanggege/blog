@@ -39,38 +39,42 @@ debug 文件名   开始调试
 - a(Assemble)	逐行汇编
 - r(Register)	显示和修改寄存器
 - t(Trace)	跟踪执行
-- q(Quit)	结束	q
+- q(Quit)	结束
+- g 0012 将ip0012前面的指令都执行完
+- p 把loop执行完，直至cx==0
 
 # 寄存器
+
+![](img/7.jpeg)
+
 ## 通用寄存器：
-AX，BX，CX，DX 称作为数据寄存器：
+AX，BX，CX，DX 称作为数据寄存器，可分为AL,AH使用，以DS作为段前缀：
 
-- AX (Accumulator)：累加寄存器，也称之为累加器；
-- BX (Base)：基地址寄存器；
-- CX (Count)：计数器寄存器；放着程序的长度
-- DX (Data)：数据寄存器；
+- AX (Accumulator)：累加寄存器，一般用于中转，不可用于[]寻址；
+- BX (Base)：基地址寄存器,用于[]内存寻址
+- CX (Count)：计数器寄存器，一般用于loop计数
+- DX (Data)：数据寄存器，可用于[]寻址；
 
-SP 和 BP 又称作为指针寄存器：
+SP 和 BP 又称作为指针寄存器，一般用于栈操作：
 
 - SP (Stack Pointer)：堆栈指针寄存器；
-- BP (Base Pointer)：基指针寄存器；
+- BP (Base Pointer)：基指针寄存器，可用于[]内存寻址，默认段前缀SS；
 
-SI 和 DI 又称作为变址寄存器：
+SI 和 DI 又称作为变址寄存器，可只用[]用于内存寻址，或相加寻址：
 
 - SI (Source Index)：源变址寄存器；
 - DI (Destination Index)：目的变址寄存器；
 
 控制寄存器：
 
-- IP (Instruction Pointer)：指令指针寄存器；
+- IP (Instruction Pointer)：指令指针寄存器，以CS作为段前缀；
 - FLAG：标志寄存器；
 
 段寄存器：
+- 不能直接被内存赋值，需要寄存器中转
+- 不能用于[]内存寻址，只能作为段前缀
 
 - CS (Code Segment)：代码段寄存器；
 - DS (Data Segment)：数据段寄存器；
 - SS (Stack Segment)：堆栈段寄存器；
 - ES (Extra Segment)：附加段寄存器；
-
-## loop
-for的指令实现

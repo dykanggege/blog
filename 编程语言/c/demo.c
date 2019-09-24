@@ -1,20 +1,14 @@
 #include<stdio.h>
 
-enum demo{
-    A = 1,
-    B = 2,
-    C,
-    D
-};
+int test = 1;
 
+enum boolean {NO,YES}; //只是把他们放在一起了，没有额外的命名空间，默认从0开始
+enum boolean b = NO;
+
+// enum bool {NO=1,YES}; 报错，NO重复定义了
+// enum bool b2 = NO;
 
 int main(void) {
-    double sum, func(void);
-    sum = func();
-    printf("%f",sum);
+    printf("%d\n",b);
     return 0;
-}
-
-double func(void) {
-    return 6;
 }

@@ -18,7 +18,7 @@ let obj = new Myclass() //创建一个对象
 Myclass除了作为函数拥有的属性，还有一些用于类继承的属性
 
 - prototype：是一个对象，即原型链
-- \_proto\_：ES中未规定，浏览器提供的属性，指向他的父类
+- \_proto\_：ES中未规定，浏览器提供的属性，指向他的父类的prototype
 
 先理解下怎样实现类继承，再考虑上面两个属性的意义
 
@@ -80,3 +80,31 @@ SubType.prototype = new SuperType();
 
 至于其他 \_proto_  或 constructor 都是作为辅助，后面先说js内置类的继承关系
 
+
+# 内置继承关系
+输出最前面的 obj.\__proto__  得到创建对象的类的prototype
+
+    {
+        constructor: ƒ Myclass()
+        \_\_proto\_\_: Object
+    }
+
+我们创建的类是没有名字的，只有构造器即函数有名，干脆把他看做类和构造器同名，叫做Myclass
+
+看下面这个图
+
+![](img/1.jpg)
+
+
+Brendan Eich说，要有类，于是就有了Object类，包含Object构造器和Object.prototype
+
+由于Object.prototype是一个对象，如果由Object类创建，则Object.prototype 继承了 Object.prototype 的属性，自己继承自己？所以让Object.prototype.\_\_proto__ === null，这样看做 Object.prototype 是凭空诞生的对象
+
+
+Object的构造器是个函数，干脆搞个Function继承一下，于是就有
+
+Object.constructor.\_\_proto__ === Function.prototype
+
+而 Function.prototype 是一个对象，所以有必要让 Function.prototype.\_\_proto__ === Object.prototype
+
+这种设计可以说是非常傻吊了 Object.constructor 有了Function和Object所有属性，至于Function.\_\proto__ === Function.prototype 就当是个笑话吧

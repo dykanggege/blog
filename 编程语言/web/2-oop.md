@@ -108,3 +108,82 @@ Object.constructor.\_\_proto__ === Function.prototype
 而 Function.prototype 是一个对象，所以有必要让 Function.prototype.\_\_proto__ === Object.prototype
 
 这种设计可以说是非常傻吊了 Object.constructor 有了Function和Object所有属性，至于Function.\_\proto__ === Function.prototype 就当是个笑话吧
+
+# class
+前面说了那么多，这个才是重点，class是原型链的语法糖，受原型链的限制，注定很多功能不能像其他语言类一样完美，但基本满足需求
+
+用js要切记一条，道路千千万，选择正确的走就可以了，没必要搞清楚所有道路
+
+```
+//本质是函数,Rectangle是个函数
+//必须先声明，不存在提升
+class Rectangle {
+  height = 0; //public属性
+  #width; //private属性
+
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+
+  // Getter
+  get area() {
+    return this.calcArea();
+  }
+  // Method
+  calcArea() {
+    return this.height * this.width;
+  }
+
+  //只能借助类使用的静态方法
+  static distance(a, b) {
+    const dx = a.x - b.x;
+    const dy = a.y - b.y;
+
+    return Math.hypot(dx, dy);
+  }
+}
+
+```
+
+## 继承
+```
+class Animal { 
+  constructor(name) {
+    this.name = name;
+  }
+  
+  speak() {
+    console.log(`${this.name} makes a noise.`);
+  }
+}
+
+class Dog extends Animal {
+  constructor(name) {
+    super(name); // call the super class constructor and pass in the name parameter
+  }
+
+  speak() {
+    console.log(`${this.name} barks.`);
+  }
+
+  fspeak() {
+    super.speak() //super调用父类
+  }
+}
+```
+
+# module
+以前的es是多个文件合并为一个全局作用域，现在可以使用模块化
+
+import有很多语法，我只推荐使用 import 'bg' from './bg'
+
+导出推荐用
+
+```
+export default {
+
+}
+```
+
+一旦使用import或export，都代表你的代码运行在 'use strict' 模式下

@@ -106,3 +106,9 @@ r变为os.Stdin
     func Sscanf(str string, format string, a ...interface{}) (n int, err error)
 
 一般情况下bufio就足够用了，需要格式化的场景，例如oj，或格式化输出字符串，才用到format包
+
+# os.File
+
+    func OpenFile(name string, flag int, perm FileMode) (*File, error)
+
+打开一个文件有很多选项，只读、截取、异步等等

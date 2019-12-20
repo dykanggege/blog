@@ -1,9 +1,9 @@
 # 镜像操作
-Docker 运行容器前需要本地存在对应的镜像，如果本地不存在该镜像，Docker 会从镜像仓库下载该镜像。
+Docker 运行容器前需要本地存在对应的镜像，可以从仓库拉取 image，或者本地导入 image，或 Dockerfile 便衣 image 等
 
 ## 获取镜像
 
-    docker pull [选项] [Docker Registry 地址[:端口号]/]仓库名[:标签]
+    docker [images] pull [选项] [Docker Registry 地址[:端口号]/]仓库名[:标签]
 
 - 地址的格式一般是 <域名/IP>\[:端口号\] 。默认地址是 Docker Hub。
 - 如之前所说,这里的仓库名是两段式名称,即 <用户名>/<软件名> 。对于 Docker Hub,如果不给出用户名,则默认为 library ,也就是官方镜像，如果不加标签，则默认拉取最新版
@@ -79,21 +79,6 @@ docker run 是 fork-excv 出一个子进程，然后docker等待子进程调用�
 ## commit
 在容器做的修改都记录于容器的存储层中，如果容器删除就没了，如果我们想将其永久保留下来，可以用commit将其打包为新的镜像
 
-# 数据卷
-将容器运行产生的数据或使用的文件和主机交互是很重要的，可以将容器的目录挂载在宿主机上，相当于Ｕ盘挂载一样
-- docker run -it -v /myDataVolume:/dataVolumeContainer centos 将本地的一个文件夹像U盘一样挂载在容器中
-
-## dockerfile VOLUME
-镜像的描述文件，编写好 dockerfile　文件后，可以直接用命令生产　docker 镜像
-
-- docker build -f dockerfile -t 新的镜像名 .(在当前目录下)
-    - -f 指定要使用的 dockerfile 的路径
-    - -t　镜像的名字和标签，通常指定 name:tag　如果不指定标签，则默认是最后版本
-
-
-可以用　VＯLUME　指令给镜像添加一个或多个数据卷，如果只指定了镜像的数据卷，没有指定宿主机的挂载卷，则镜像自己会指定一个默认的挂载点
-
-## --volumes-from 
-docker run -it --name k1 kanggege/centos
-docker run -it --name k2 --volumes-from k1 kanggege/centos  
-将一个容器的数据卷挂载到另一个容器的挂载点上
+## 其他
+- inspect：查看 image 信息
+- save、load：将 image 导出到本地，或从本地加载

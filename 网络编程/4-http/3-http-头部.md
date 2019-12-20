@@ -1,14 +1,16 @@
-# 首部
 首部是报文的重要组成，配合请求方法或状态码实现了很多附加功能
 
-首部大致分为三类，通用首部，请求首部，响应首部（这不是废话么）
+首部大致分为三类，通用首部，请求首部，响应首部
 
-# 通用首部
+# 通用
 
-## 通用信息首部
-![](img/4.png)
+## connect
+HTTP1.1 之后默认多个 http 请求可以在一个tcp连接中完成，connect 代表当前 http 请求结束后是否关闭 tcp 连接
 
-## 通用缓存首部
+- keep-alive：保持 tcp 存活，可能还有请求
+- close：引导浏览器关闭 tcp 连接
+
+## 缓存
 ![](img/5.png)
 
 ### Pragma
@@ -32,7 +34,7 @@ Pragma有两个字段Pragma和Expires。Pragma的值为no-cache时，表示禁�
 
 缓存挺复杂的,具体的以后用到了再查
 
-# 请求首部 
+# 请求 
 
 ![](img/6.png)
 
@@ -81,3 +83,14 @@ form表单中用accept-charset设置编码，通常是utf-8
 ![](img/8.png)
 
 ## 安全请求首部
+
+# 响应
+
+## Content-Disposition
+display position，响应数据的展示位置，默认 inline，即交给 js 处理在网页中展示，或作为附件下载，和 Content-Type 搭配使用
+
+- inline：交给 js 处理
+- attachment：意味数据应该交给浏览器处理，并下载到本地
+
+    Content-Disposition: attachment; filename="filename.jpg"
+

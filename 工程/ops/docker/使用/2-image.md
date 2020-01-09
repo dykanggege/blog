@@ -80,5 +80,5 @@ docker run 是 fork-excv 出一个子进程，然后docker等待子进程调用�
 在容器做的修改都记录于容器的存储层中，如果容器删除就没了，如果我们想将其永久保留下来，可以用commit将其打包为新的镜像
 
 ## 其他
-- inspect：查看 image 信息
-- save、load：将 image 导出到本地，或从本地加载
+- inspect：查看 image 详细信息
+- save、load：将 image 导出到本地，或从本地加载，理论上说我们不会将任何需要持久化都数据保留在镜像中，且dockerfile可以构建镜像，所以只需要dockerfile和镜像文件即可，导出镜像功能意义不大

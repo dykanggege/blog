@@ -44,6 +44,8 @@ docker attach dreamy_ritchie或者用ID
 
 使用attach进入后台运行的程序，如果从这个 stdin 中 exit，会导致容器的停止
 
+一般建议中 exec
+
 ### exec
     
     docker exec [OPTIONS] CONTAINER COMMAND [ARG...]

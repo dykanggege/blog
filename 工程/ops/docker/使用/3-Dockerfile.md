@@ -142,25 +142,48 @@ Dockerfile 中的其它指令都是为了定制当前镜像而准备的，唯有
 
     docker build https://github.com/twang2218/gitlab-ce-zh.git#:11.1
 
-## 多层次构建
+# 多层次构建
 如果想隐藏一些细节，可以分两次构建，第一次构建依赖及其配置，第二次用第一次构建的镜像作为基础镜像，用于生产
 
 但是构建两个Dockerfile太麻烦，甚至还要写一个sh脚本整合，现在docker支持在一个Dockerfile中做多次构建
 
-我们可以使用 as 来为某一阶段命名，例如
+```
+FROM golang:1.12 as builder
 
-    FROM golang:1.9-alpine as builder
+WORKDIR /var
 
-例如当我们只想构建 builder 阶段的镜像时，增加 --target=builder 参数即可
+COPY main.go .
 
-    $ docker build --target builder -t username/imagename:tag .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
 
-上面例子中我们使用 COPY --from=0 /go/src/github.com/go/helloworld/app . 从上一阶段的镜像中复制文件，我们也可以复制任意镜像中的文件。
+FROM alpine:latest as prod
+
+RUN apk add --no-cache ca-certificates
+
+WORKDIR /var
+
+COPY --from=0 /var/app .
+
+CMD ["./app"]
+```
+- --from=0，0代表第一阶段构建的镜像，也可以是1、2，即从 0 阶段镜像中拿一些数据出来
+- 如果使用 as 对某一阶段命名，也可以用 --from=builder
+- 也可以复制任意镜像中的文件。
 
     COPY --from=nginx:latest /etc/nginx/nginx.conf /nginx.conf
 
+- 当我们只想构建 builder 阶段的镜像时，增加 --target=builder 参数即可
 
-# 构建最小镜像
+    $ docker build --target builder -t username/imagename:tag .
+
+注意
+
+    CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+
+
+CGO_ENABLED=0 代表禁止使用CGO做交叉编译，即将依赖库静态链接在二进制中，build -a 强制所有文件重新编译，
+
+## 构建最小镜像
 开发人员一般会用dockerfile打包好镜像，然后将镜像及其用法交给运维部署
 
 虽然镜像是分层构建，且多个镜像可公用中间层，若其他镜像没有用到这个中间层，那么你构建的镜像就切切实实的浪费了这么大的空间
@@ -181,14 +204,3 @@ alpine是docker官方出的一个精简过的linux最小子集，只有5M，一�
 
 所以go项目可以在编译后再构建镜像，避免打包依赖进去
 
-## 分阶段构建
-
-最早dockerfile中只能有一个from，现在docker支持多阶段构建，可以使用第一个镜像作为第二个镜像的基础
-
-```
-    FROM golang as builder
-    ...
-    FROM alpine
-
-    COPY --from=builder /app/server /
-```

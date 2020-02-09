@@ -111,11 +111,16 @@ USER 指令和 WORKDIR 相似，都是改变环境状态并影响以后的层。
         --interval=<间隔>：两次健康检查的间隔，默认为 30 秒；
         --timeout=<时长>：健康检查命令运行超时时间，如果超过这个时间，本次健康检查就被视为失败，默认 30 秒；
         --retries=<次数>：当连续失败指定次数后，则将容器状态视为 unhealthy，默认 3 次。
+        --start-period=<间隔>: 应用的启动的初始化时间，在启动过程中的健康检查失效不会计入，默认 0 秒（从 V17.05 引入）
     命令的返回值决定了该次健康检查的成功与否：0：成功；1：失败；2：保留，不要使用这个值。
 
 当在一个镜像指定了 HEALTHCHECK 指令后，用其启动容器，初始状态会为 starting，在 HEALTHCHECK 指令检查成功后变为 healthy，如果连续一定次数失败，则会变为 unhealthy。
 
 为了帮助排障，健康检查命令的输出（包括 stdout 以及 stderr）都会被存储于健康状态里，可以用 docker inspect 来查看。
+
+    FROM elasticsearch:5.5
+    HEALTHCHECK --interval=5s --timeout=2s --retries=12 \
+    CMD curl --silent --fail localhost:9200/_cluster/health || exit 1
 
 ## ONBUILD 为他人做嫁衣裳
     

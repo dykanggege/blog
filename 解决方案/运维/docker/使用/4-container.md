@@ -1,3 +1,20 @@
+# 启动容器
+根据镜像创建的容器就像是根据代码跑一次进程，但是docker中还可以将在终止状态的容器重新启动
+
+    docker [container] run
+    等同于
+    docker container create IMAGE
+    docker container start CONTAINER
+
+1. 检查本地是否存在指定的镜像，不存在就从公有仓库下载
+2. 利用镜像创建并启动一个容器
+3. 分配一个文件系统，并在只读的镜像层外面挂载一层可读写层
+4. 从宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去
+5. 从地址池配置一个 ip 地址给容器
+6. 执行用户指定的应用程序
+7. 执行完毕后容器被终止
+
+
 # 查看容器
 查看正在运行的容器    
 
@@ -14,24 +31,13 @@
     docker container stop
     docker stop 
 
-此外，当 Docker 容器中指定的应用终结时，容器也自动终止。
+stop会给容器内进程发送信号，使其结束并做清理工作，可能不会立即停止。此外，当 Docker 容器中指定的应用终结时，容器也自动终止。
 
 只启动了一个终端的容器，用户通过 exit 命令或 Ctrl+d 来退出终端时，所创建的容器立刻终止
 
 终止状态的容器可以用 docker container ls -a 命令看到
 
-# 启动容器
-根据镜像创建的容器就像是根据代码跑一次进程，但是docker中还可以将在终止状态的容器重新启动
-
-当利用 docker run 来创建容器时，Docker 在后台运行的标准操作包括：
-
-1. 检查本地是否存在指定的镜像，不存在就从公有仓库下载
-2. 利用镜像创建并启动一个容器
-3. 分配一个文件系统，并在只读的镜像层外面挂载一层可读写层
-4. 从宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去
-5. 从地址池配置一个 ip 地址给容器
-6. 执行用户指定的应用程序
-7. 执行完毕后容器被终止
+docker kill 会强制杀死容器，立刻停止
 
 ## 启动后台容器
 容器启动后，默认是在前台运行，打印所有日志消息，加上 -d 的是在后台运行，如果想从前台切换到后台，可以使用Ctrl + P + Q组合键
@@ -78,3 +84,14 @@ docker attach dreamy_ritchie或者用ID
     docker rm id
 
     docker container prune  清理所有处于终止状态的容器
+
+# 其他
+docker container
+
+- attach：将一个container的io重定向到stdio上
+- cp：从本地copy文件到container中
+- diff：查看container对filesystem做了啥改动
+- export：将container打包导出，import导入
+- pause：暂停容器内所有进程，unpause 恢复运行
+- wait：调用后会阻塞，知道某个container结束退出
+- update：用于更新对container限制的资源

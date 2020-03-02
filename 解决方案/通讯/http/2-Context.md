@@ -183,7 +183,52 @@ func Default(method, contentType string) Binding {
 	}
 }
 
-//具体绑定的方式是通过反射实现的，这里就不看了
+//他们都实现了Bind接口，以json为例
+
+func (jsonBinding) Bind(req *http.Request, obj interface{}) error {
+	if req == nil || req.Body == nil {
+		return fmt.Errorf("invalid request")
+	}
+	return decodeJSON(req.Body, obj)
+}
+
+func decodeJSON(r io.Reader, obj interface{}) error {
+	decoder := json.NewDecoder(r)
+	if EnableDecoderUseNumber {
+		decoder.UseNumber()
+	}
+	if EnableDecoderDisallowUnknownFields {
+		decoder.DisallowUnknownFields()
+	}
+	if err := decoder.Decode(obj); err != nil {
+		return err
+	}
+	return validate(obj)
+}
+
+注意最后一句，调用了validate
+
+func validate(obj interface{}) error {
+	if Validator == nil {
+		return nil
+	}
+	return Validator.ValidateStruct(obj)
+}
+
+func (v *defaultValidator) Engine() interface{} {
+	v.lazyinit()
+	return v.validate
+}
+
+func (v *defaultValidator) lazyinit() {
+	v.once.Do(func() {
+		v.validate = validator.New()
+		v.validate.SetTagName("binding")
+	})
+}
+
+
+即，验证binding tag的合法性
 ```
 
 # 响应

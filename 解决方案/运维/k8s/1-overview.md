@@ -27,9 +27,6 @@ k8s从整体上分为master和node节点，它采用master控制node的方式，
 - User通过 kubectl 和 API Server 通讯，实现其他的节点管理功能
 - kubelet：master通过API server调用节点，而kubelet就是接收调用并做出回复的节点，用来创建调度pod，回复心跳包等等
 
-
-
-
 # 安装
 ## kubeadm
 kubuadm 命令行用于快速搭建 k8s 集群，当然也可以自己手动构建

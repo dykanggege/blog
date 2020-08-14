@@ -17,7 +17,7 @@
 
 URL代表资源的定位，不仅是HTTP请求，在任何类型的请求中，他都代表资源的定位，且格式一样，用在HTTP中它通常是如下格式
 
-    scheme://host:post/path?query1=val1&query2=val2
+    scheme://host:port/path?query1=val1&query2=val2
 
 虽然很多协议都用到了URL，且语法不太相同，但总的来说他们都遵守了以下的语法，且没有协议全部用到每一部分语法
 

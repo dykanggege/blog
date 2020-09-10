@@ -1,0 +1,12 @@
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  ports:
+  - port: 8080
+    targetPort: 80
+  # selector的单位也是pod
+  selector:
+    release: nginx-test

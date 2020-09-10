@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+
+# 使用 Deployment 作为 schedule
+kind: Deployment
+
+# Deployment的元信息
+metadata:
+  # 部署deployment的名字，全局唯一
+  name: nginx-deployment 
+  # 部署的命名空间
+  namespace: fukang
+  # 给deployment加上自定义标签
+  labels:
+    app: nginx-deployment-test
+
+# 部署配置信息
+spec:
+  # selector用于选择pod
+  selector:
+    matchLabels:
+      release: nginx-test
+ 
+  # 创建数量
+  replicas: 3     
+
+  # 要创建的pod模板，相当于先创建pod，再创建Deployment的语法糖
+  template: 
+    metadata:
+      name: nginx-pod
+      labels:
+        release: nginx-test
+
+    spec:
+      # 将pod调度到指定节点上
+      nodeSelector:
+        disktype: ssd
+      containers:
+      - name: nginx
+        image: mirrors.tencent.com/capd/capdqa/nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: app-logs
+          mountPath: /var/log/nginx
+        - name: nginx-default-config
+          mountPath: /etc/nginx
+        # 容器失败后重启，这个重启是在当前node上重启，只有node挂了才会调度到其他节点
+        restartPolicy: Always
+        livenessProbe: # 如果探测不健康，则会杀掉容器
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30 # 容器启动后首次检查等待时间
+          timeoutSeconds: 1
+
+      - name: busybox
+        image: mirrors.tencent.com/capd/capdqa/busybox
+        command: ['sh', "-c", "tail -f /logs/*.log"]
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs 
+        restartPolicy: Always
+
+      volumes:
+      - name: app-logs
+        emptyDir: {}
+      - name: nginx-default-config
+        configMap:
+          name: nginx-conf
+          items:
+            - key: default-conf
+              path: nginx.conf
+

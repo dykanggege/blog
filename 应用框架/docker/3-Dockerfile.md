@@ -165,7 +165,7 @@ FROM alpine:latest as prod
 
 RUN apk add --no-cache ca-certificates
 
-WORKDIR /var
+WORKDIR /var    
 
 COPY --from=0 /var/app .
 

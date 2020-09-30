@@ -96,3 +96,8 @@ go.mod文件用//注释，而不用/**/。文件的每行都有一条指令，�
 
 用法：go mod verify。此命令会检查当前模块的依赖是否已经存储在本地下载的源代码缓存中，以及检查自从下载下来是否有修改。如果所有的模块都没有修改，那么会打印all modules verified，否则会打印变化的内容
 
+
+# private reposity
+mod在加载依赖时会默认走 goproxy，如果依赖里有内网下访问的私有仓库，则代理肯定加载不到，需要配置GONOPROXY，下载和运行依赖时候都会校验依赖代码的md5值，所以还要配置GONOSUMDB
+
+下载依赖时必须走https，如果private reposity没有证书也可能失败

@@ -1,0 +1,22 @@
+- /cmd
+- /internal
+    - controllers
+    - service
+    - models
+- /pkg
+- /vendor
+- /api
+- /web
+- /configs
+- /init
+- /scripts
+- /build
+- /deployments
+- /test
+- /docs
+- /tools
+- /examples
+- /third_party
+- /githooks
+- /assets
+- /website

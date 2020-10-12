@@ -7,7 +7,7 @@ Dockerfile 支持 Shell 类的行尾添加 \ 的命令换行方式,以及行首 
 ## FROM
 docker的镜像是层层构建的，所以新的镜像可以依赖于已存在的镜像，FROM就是用来说明依赖的镜像
 
-scratch 镜像是虚拟的概念,并不实际存在,它表示一个空白的镜像，没有依赖就可以用 FROM scratch
+scratch 镜像是虚拟的概念,并不实际存在,它表示一个空白的镜像，没有依赖就可以用 FROM scratch，即基于内核跑程序
 
 ## COPY
 复制文件到镜像中
@@ -34,16 +34,13 @@ RUN 指令是用来执行命令行命令的，它会在编译镜像时执行，�
 
 每一个命令都会构建一层，太多的层毫无意义，所以尽可能的把所有的run命令写在一个命令中，RUN echo 1 && echo 2
 
-记得每一层构建的最后一定要清理掉无关文件
-
 ## CMD
-我们知道启动一个容器的本质就是启动一个进程，启动一个进程时可以携带附加参数，CMD就是容器启动附加参数，相当于 docker run centos CMD，只不过我们设置的CMD是个启动默认值，如果run时加了参数，就会代替CMD
+CMD是容器启动附加的参数，相当于 docker run centos CMD，设置的CMD是个启动默认值，如果run时加了参数，就会代替CMD
 
-容器启动的默认命令来源于FROM镜像，通过CMD可以修改这个启动命令
+- 容器启动的默认命令来源于FROM镜像，通过CMD可以修改这个启动命令
+- RUN在编译时执行，带来的改变被永久封装在镜像中，CMD是镜像每次启动容器时执行
 
-它和RUN的区别是，RUN在编译时执行，带来的改变被永久封装在镜像中了，CMD是镜像每次启动容器时执行
-
-在运行时可以指定新的命令来替代镜像设置中的这个默认命令,比如, ubuntu镜像默认的 CMD 是 /bin/bash ,如果我们直接 docker run -it ubuntu 的话,会直接进入 bash 。我们也可以在运行时指定运行别的命令,如 docker run -it ubuntu cat /etc/os-release 。这就是用 cat/etc/os-release命令替换了默认的 /bin/bash 命令了,输出了系统版本信息。
+在运行时可以指定新的命令来替代镜像设置中的CMD，比如, ubuntu镜像默认的 CMD 是 /bin/bash ,使用 docker run -it ubuntu 的话,会直接进入 bash 。我们也可以在运行时指定运行别的命令,如 docker run -it ubuntu cat /etc/os-release 。这就是用 cat/etc/os-release命令替换了默认的 /bin/bash 命令了,输出了系统版本信息。
 
 在指令格式上,一般推荐使用 exec 格式,这类格式在解析时会被解析为 JSON数组,因此一定要使用双引号 " ,而不要使用单引号
 

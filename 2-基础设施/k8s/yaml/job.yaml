@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fk-test
+spec:
+  template:
+    spec:
+      containers:
+      - name: tlinux
+        image: mirrors.tencent.com/lingdong/doit:tlinux2.6
+        command: ["sleep",  "120"]
+      restartPolicy: OnFailure
+  backoffLimit: 4

@@ -32,8 +32,12 @@ target 可以是多个文件或操作的名字(伪目标)
 # 语法
 - \# 注释
 - 编译时会打印每个commands，即回声，@commands 可避免回声
-- var = val $(var)，使用shell变量需要 $$var
+- key = val 获取值$(key)，使用shell变量需要 $$key
 - VARIABLE = value 在执行时扩展，允许递归扩展。
 - VARIABLE := value 在定义时扩展。
 - VARIABLE ?= value 只有在该变量为空时才设置值。
 - VARIABLE += value 将值追加到变量的尾端。
+- include <filename> 引用其他makefile，类似include
+
+# 自动推导
+只要make看到一个 .o 文件，它就会自动的把 .c 文件加在依赖关系中，如果make找到一个 whatever.o ，那么 whatever.c 就会是 whatever.o 的依赖文件，并且 cc -c whatever.c 也会被推导出来

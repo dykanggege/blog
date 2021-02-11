@@ -30,11 +30,12 @@ cgroup可以通过挂载到任何文件夹下使用
 - net_prio: 限制进程网络流量的优先级
 - huge_tlb: 限制HugeTLB的使用
 - freezer:挂起或者恢复cgroups中的进程
-- ns: 控制cgroups中的进程使用不同的namespace。
+- ns: 控制cgroups中的进程使用不同的namespace
+- pids: 限制进程总数
 
 
 # 通用文件
-- cgroup.procs 记录父进程，他创建的子进程也会被记录
+- cgroup.procs 记录进程pid，1号进程创建的子进程也会被记录
 - tasks 当前cgroup中的所有taskID（进程和线程），系统不保证ID是顺序排列的
 
 - cgroup.clone_children 这个文件只对cpuset（subsystem）有影响，当该文件的内容为1时，新创建的cgroup将会继承父cgroup的配置，即从父cgroup里面拷贝配置文件来初始化新cgroup，默认0
@@ -52,12 +53,8 @@ cgroup.procs是用来放入进程，而tasks用来放入线程，但实际线程
 当cgroup中最后一个进程离去，并且没没有子cgroup，就会执行 notify_on_release 中记录的脚本
 
 
-## pids
-
+# pids
 pids可以限制进程总数
-
-    root@kanggege-PC:/sys/fs/cgroup/pids/test# ls
-    cgroup.clone_children  cgroup.procs  notify_on_release	pids.current  pids.events  pids.max  tasks
 
 在pids下面创建文件夹并进入，多了两个特殊文件
 
@@ -67,70 +64,6 @@ pids可以限制进程总数
 
 子cgroup会受祖先cgroup的current和max限制，取min(c1,c2,c3)
 
-## memory
-    //在memory下创建了一个cgroup，查看文件
-    root@kanggege-PC:/sys/fs/cgroup/memory/test# ls
-    cgroup.clone_children  memory.kmem.failcnt	       memory.kmem.tcp.limit_in_bytes	   memory.max_usage_in_bytes	    memory.soft_limit_in_bytes	notify_on_release
-    cgroup.event_control   memory.kmem.limit_in_bytes      memory.kmem.tcp.max_usage_in_bytes  memory.move_charge_at_immigrate  memory.stat			tasks
-    cgroup.procs	       memory.kmem.max_usage_in_bytes  memory.kmem.tcp.usage_in_bytes	   memory.numa_stat		    memory.swappiness
-    memory.failcnt	       memory.kmem.slabinfo	       memory.kmem.usage_in_bytes	   memory.oom_control		    memory.usage_in_bytes
-    memory.force_empty     memory.kmem.tcp.failcnt	       memory.limit_in_bytes		   memory.pressure_level	    memory.use_hierarchy
-
-memory提供了很多功能，但很多我们用不到
-
-    cgroup.event_control       #用于eventfd的接口
-    memory.usage_in_bytes      #显示当前已用的内存
-    memory.limit_in_bytes      #设置/显示当前限制的内存额度
-    memory.failcnt             #显示内存使用量达到限制值的次数
-    memory.max_usage_in_bytes  #历史内存最大使用量
-    memory.soft_limit_in_bytes #设置/显示当前限制的内存软额度
-    memory.stat                #显示当前cgroup的内存使用情况
-    memory.use_hierarchy       #设置/显示是否将子cgroup的内存使用情况统计到当前cgroup里面
-    memory.force_empty         #触发系统立即尽可能的回收当前cgroup中可以回收的内存
-    memory.pressure_level      #设置内存压力的通知事件，配合cgroup.event_control一起使用
-    memory.swappiness          #设置和显示当前的swappiness
-    memory.move_charge_at_immigrate #设置当进程移动到其他cgroup中时，它所占用的内存是否也随着移动过去
-    memory.oom_control         #设置/显示oom controls相关的配置
-    memory.numa_stat           #显示numa相关的内存
-
-下面示例具体怎么用
-
-    //在第一个tty中，将自己加入并启动top命令
-    root@kanggege-PC:/sys/fs/cgroup/memory/test# echo $$ >> cgroup.procs 
-    root@kanggege-PC:/sys/fs/cgroup/memory/test# top
-    
-    //再打开一个命令窗口
-    root@kanggege-PC:/sys/fs/cgroup/memory/test# cat cgroup.procs 
-    6586
-    18860
-    //查看下已经使用的内存量，以字节为单位
-    root@kanggege-PC:/sys/fs/cgroup/memory/test# cat memory.usage_in_bytes 
-    3571712
-
-    #--------------------------第一个shell窗口----------------------
-    #回到第一个shell窗口
-    dev@dev:/sys/fs/cgroup/memory$ cd test
-    #这里两个进程id分别时第二个窗口的bash和top进程
-    dev@dev:/sys/fs/cgroup/memory/test$ cat cgroup.procs
-    4589
-    4664
-    #开始设置之前，看看当前使用的内存数量，这里的单位是字节
-    dev@dev:/sys/fs/cgroup/memory/test$ cat memory.usage_in_bytes
-    835584
-
-    #设置1M的限额
-    dev@dev:/sys/fs/cgroup/memory/test$ sudo sh -c "echo 1M > memory.limit_in_bytes"
-    #设置完之后记得要查看一下这个文件，因为内核要考虑页对齐, 所以生效的数量不一定完全等于设置的数量
-    dev@dev:/sys/fs/cgroup/memory/test$ cat memory.limit_in_bytes
-    1048576
-
-    #如果不再需要限制这个cgroup，写-1到文件memory.limit_in_bytes即可
-    dev@dev:/sys/fs/cgroup/memory/test$ sudo sh -c "echo -1 > memory.limit_in_bytes"
-    #这时可以看到limit被设置成了一个很大的数字
-    dev@dev:/sys/fs/cgroup/memory/test$ cat memory.limit_in_bytes
-    9223372036854771712
-
-    
 # cpu
 - cpu.cfs_period_us CFS算法的一个调度周期，一般值是100000，us为单位，即100ms
 - cpu.cfs_quota_us 在一个调度周期内这个控制组被允许的时长，cfs_period_us/cfs_quota_us 代表多少核，子层级的cfs_quota_us值不能大于父层级的
@@ -167,4 +100,23 @@ RSS，resident set size，包括栈、堆内存、共享内存，不包括进入
 
 - memory.limit_in_bytes 限制的内存，这里限制的是RSS和cache
 - memory.usage_in_bytes 已经使用的内存，当usage_in_bytes超过了limit_in_bytes就会触发内存回收
-- memory.swappiness 控制swap使用和cache回收的权重，和/proc/sys/vm/swappiness不同的是，如果memory.swappiness=0，则当前层级的进程不能使用swap
+- memory.swappiness 控制swap使用和cache回收的权重，和/proc/sys/vm/swappiness不同的是，如果memory.swappiness=0，则当前层级的进程不能使用swap，默认60
+
+```
+    其他的一些文件
+
+    cgroup.event_control       #用于eventfd的接口
+    memory.usage_in_bytes      #显示当前已用的内存
+    memory.limit_in_bytes      #设置/显示当前限制的内存额度
+    memory.failcnt             #显示内存使用量达到限制值的次数
+    memory.max_usage_in_bytes  #历史内存最大使用量
+    memory.soft_limit_in_bytes #设置/显示当前限制的内存软额度
+    memory.stat                #显示当前cgroup的内存使用情况
+    memory.use_hierarchy       #设置/显示是否将子cgroup的内存使用情况统计到当前cgroup里面
+    memory.force_empty         #触发系统立即尽可能的回收当前cgroup中可以回收的内存
+    memory.pressure_level      #设置内存压力的通知事件，配合cgroup.event_control一起使用
+    memory.swappiness          #设置和显示当前的swappiness
+    memory.move_charge_at_immigrate #设置当进程移动到其他cgroup中时，它所占用的内存是否也随着移动过去
+    memory.oom_control         #设置/显示oom controls相关的配置
+    memory.numa_stat           #显示numa相关的内存
+```

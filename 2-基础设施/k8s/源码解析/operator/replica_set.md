@@ -43,10 +43,3 @@ func (rsc *ReplicaSetController) addPod(obj interface{}) {
 }
 
 ```
-
-
-
-# 基础设施
-
-1. 大量的基础依赖库，且没有很好的注释，不知道使用依赖库实现什么功能
-2. 

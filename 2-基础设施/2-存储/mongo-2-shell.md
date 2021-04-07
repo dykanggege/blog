@@ -8,3 +8,6 @@
 
     db.coll.createIndex({test:1}) // 这个1就是占位的
 
+# golang使用mongo的坑
+1. 直接查询表返回错误，必须先插入值，再清空值表不会被删
+2. 存储字段不是用json，而是bson，再单独定义标签

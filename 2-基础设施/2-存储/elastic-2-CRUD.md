@@ -1,6 +1,12 @@
+# 元信息操作
 ```
-############Create Document############
-#create document. 自动生成 _id
+# 查看所有索引状态
+GET /_cat/indices?v
+```
+# create
+```
+# 创建时会自动生成不存在的索引
+# create document. 自动生成 _id
 POST users/_doc
 {
 	"user" : "Mike",
@@ -23,21 +29,38 @@ PUT users/_create/1
     "post_date" : "2019-05-15T14:12:12",
     "message" : "trying out Elasticsearch"
 }
-
-### Get Document by ID
+```
+# get
+```
 #Get the document by ID
 GET users/_doc/1
 
+# 查询index下所有的doc
+GET users/_search
 
+GET users/_search?q=user:fuck
+
+GET users/_search
+{
+    "query": {
+        "match": {
+            "user":"Mike"
+        }
+    }
+}
+
+
+```
+# update
+```
 ###  Index & Update
-#Update 指定 ID  (先删除，在写入)
+# Update 指定 ID  (先删除，在写入)
 PUT users/_doc/1
 {
 	"user" : "Mike"
-
 }
 
-#在原文档上增加字段
+#在原文档上增加或修改字段，修改内容放在doc里
 POST users/_update/1/
 {
     "doc":{
@@ -45,14 +68,17 @@ POST users/_update/1/
         "message" : "trying out Elasticsearch"
     }
 }
+```
 
-
-
+# delete
+```
 ### Delete by Id
 # 删除文档
 DELETE users/_doc/1
+```
 
-
+# bulk
+```
 ### Bulk 操作
 #执行两次，查看每次的结果
 
